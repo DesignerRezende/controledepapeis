@@ -33,11 +33,13 @@ async function parseCSV(url) {
         const row = {};
         for (let j = 0; j < headers.length; j++) {
             let value = values[j];
-            // Tenta converter para número se possível
-            if (!isNaN(value) && value.trim() !== '') {
-                row[headers[j].trim()] = parseFloat(value);
+            const headerName = headers[j].trim(); // Pega o nome da coluna sem espaços extras
+            
+            // Tenta converter para número se for uma coluna de quantidade ou estoque
+            if (['Quantidade de Pacotes', 'Folhas por Pacote', 'Total de Folhas', 'Estoque Mínimo'].includes(headerName)) {
+                row[headerName] = parseFloat(value) || 0; // Se não for um número válido, assume 0
             } else {
-                row[headers[j].trim()] = value.trim();
+                row[headerName] = value.trim();
             }
         }
         data.push(row);
@@ -66,8 +68,19 @@ function carregarDadosDoLocalStorage() {
 
 // Gera um CSV a partir dos dados do estoque atualizado
 function gerarCsvParaDownload() {
-    const headers = Object.keys(estoquePapeis[0]).join(';'); // Assume que todos os objetos têm as mesmas chaves
-    const rows = estoquePapeis.map(item => Object.values(item).join(';'));
+    // Ordem das colunas para o CSV de download (DEVE BATER COM AS COLUNAS DO SEU CSV ORIGINAL)
+    // Se a coluna 'Estoque Mínimo' NÃO existir mais no seu CSV, REMOVA-A DAQUI TAMBÉM:
+    const columnOrder = ['Tipo de Papel', 'Tamanho', 'Quantidade de Pacotes', 'Folhas por Pacote', 'Total de Folhas', 'Estoque Mínimo']; 
+    const headers = columnOrder.join(';'); 
+    
+    const rows = estoquePapeis.map(item => {
+        // Mapeia os valores na ordem correta das colunas
+        return columnOrder.map(col => {
+            // Garante que o valor não seja undefined e converte para string
+            return item[col] !== undefined ? String(item[col]) : '';
+        }).join(';');
+    });
+    
     const csvContent = "data:text/csv;charset=utf-8," + encodeURIComponent(headers + '\n' + rows.join('\n'));
     
     const link = document.createElement('a');
@@ -88,20 +101,26 @@ function renderizarEstoque() {
     tipoPapelBaixaSelect.innerHTML = '<option value="">Selecione um papel</option>'; // Limpa e adiciona opção padrão
     
     if (estoquePapeis.length === 0) {
-        tabelaEstoque.innerHTML = '<tr><td colspan="3">Nenhum papel em estoque.</td></tr>';
+        tabelaEstoque.innerHTML = '<tr><td colspan="6">Nenhum papel em estoque.</td></tr>'; // 6 colunas
         return;
     }
 
     estoquePapeis.forEach(item => {
         const row = tabelaEstoque.insertRow();
-        row.insertCell().textContent = item['Tipo de Papel']; // Adapte aos nomes das colunas do seu CSV
-        row.insertCell().textContent = item['Quantidade']; // Adapte aos nomes das colunas do seu CSV
-        row.insertCell().textContent = item['Aviso Minimo'] || 'N/A'; // Adapte aos nomes das colunas do seu CSV
+        row.insertCell().textContent = item['Tipo de Papel'];
+        row.insertCell().textContent = item['Tamanho'];
+        row.insertCell().textContent = item['Quantidade de Pacotes'];
+        row.insertCell().textContent = item['Folhas por Pacote'];
+        row.insertCell().textContent = item['Total de Folhas'];
+        // Se 'Estoque Mínimo' ainda estiver no seu CSV e você quiser exibi-lo:
+        row.insertCell().textContent = item['Estoque Mínimo'] !== undefined ? item['Estoque Mínimo'] : 'N/A';
         
-        // Adiciona opções para o select de baixa
+        // Adiciona opções para o select de baixa usando o "Tipo de Papel" completo
         const option = document.createElement('option');
-        option.value = item['Tipo de Papel'];
-        option.textContent = item['Tipo de Papel'];
+        // Usamos o "Tipo de Papel" como value e text porque ele parece ser único o suficiente
+        // Se houver tipos de papel duplicados, considere adicionar um ID ou uma combinação de campos mais única.
+        option.value = item['Tipo de Papel']; 
+        option.textContent = `${item['Tipo de Papel']} (${item['Tamanho']})`;
         tipoPapelBaixaSelect.appendChild(option);
     });
 }
@@ -110,7 +129,9 @@ function renderizarEstoque() {
 function renderizarEstoqueBaixo() {
     listaEstoqueBaixo.innerHTML = '';
     const itensBaixo = estoquePapeis.filter(item => 
-        item['Quantidade'] <= (item['Aviso Minimo'] || 0) // Considera 0 se Aviso Minimo não existir
+        // Lógica NOVA: Total de Folhas < Folhas por Pacote
+        // Garante que 'Total de Folhas' e 'Folhas por Pacote' são números para a comparação
+        parseFloat(item['Total de Folhas']) < parseFloat(item['Folhas por Pacote']) 
     );
 
     if (itensBaixo.length === 0) {
@@ -120,7 +141,8 @@ function renderizarEstoqueBaixo() {
 
     itensBaixo.forEach(item => {
         const li = document.createElement('li');
-        li.textContent = `${item['Tipo de Papel']}: ${item['Quantidade']} (Aviso Mínimo: ${item['Aviso Minimo'] || 'N/A'})`;
+        // Mensagem mais clara sobre o motivo do alerta
+        li.textContent = `${item['Tipo de Papel']} (${item['Tamanho']}): ${item['Total de Folhas']} folhas em estoque (Mínimo para próximo pacote: ${item['Folhas por Pacote']} folhas).`;
         listaEstoqueBaixo.appendChild(li);
     });
 }
@@ -133,20 +155,20 @@ function renderizarPapeisMaisUsados() {
         return;
     }
 
-    // Calcula o total de uso por tipo de papel
-    const usoPorTipo = {};
+    // Calcula o total de uso por papel (combinando Tipo de Papel e Tamanho para clareza)
+    const usoPorPapel = {};
     historicoUso.forEach(registro => {
-        const tipo = registro.tipoPapel;
+        const chavePapel = `${registro.tipoPapelUsado} (${registro.tamanhoPapelUsado})`; 
         const quantidade = registro.quantidade;
-        usoPorTipo[tipo] = (usoPorTipo[tipo] || 0) + quantidade;
+        usoPorPapel[chavePapel] = (usoPorPapel[chavePapel] || 0) + quantidade;
     });
 
     // Converte para array e ordena
-    const papeisOrdenados = Object.entries(usoPorTipo).sort((a, b) => b[1] - a[1]);
+    const papeisOrdenados = Object.entries(usoPorPapel).sort((a, b) => b[1] - a[1]);
 
-    papeisOrdenados.forEach(([tipo, totalUsado]) => {
+    papeisOrdenados.forEach(([chavePapel, totalUsado]) => {
         const li = document.createElement('li');
-        li.textContent = `${tipo}: ${totalUsado} unidades usadas.`;
+        li.textContent = `${chavePapel}: ${totalUsado} folhas usadas.`;
         listaPapeisUsados.appendChild(li);
     });
 }
@@ -157,29 +179,32 @@ function renderizarPapeisMaisUsados() {
 formBaixa.addEventListener('submit', (event) => {
     event.preventDefault(); // Evita que a página recarregue
 
-    const tipo = tipoPapelBaixaSelect.value;
+    const tipoCompletoPapelSelecionado = tipoPapelBaixaSelect.value;
     const quantidade = parseInt(document.getElementById('quantidadeBaixa').value);
     const finalidade = document.getElementById('finalidadeBaixa').value.trim();
 
-    if (!tipo || !quantidade || !finalidade) {
+    if (!tipoCompletoPapelSelecionado || !quantidade || !finalidade) {
         mensagemBaixa.textContent = 'Por favor, preencha todos os campos.';
         mensagemBaixa.className = 'error';
         return;
     }
 
-    const item = estoquePapeis.find(p => p['Tipo de Papel'] === tipo);
+    // Encontra o item baseado no "Tipo de Papel" completo (que é o value do select)
+    const item = estoquePapeis.find(p => p['Tipo de Papel'] === tipoCompletoPapelSelecionado); 
 
     if (item) {
-        if (item['Quantidade'] >= quantidade) {
-            item['Quantidade'] -= quantidade;
+        if (item['Total de Folhas'] >= quantidade) { // Usa a coluna correta 'Total de Folhas'
+            item['Total de Folhas'] -= quantidade; // Atualiza a coluna correta
+
             historicoUso.push({
                 data: new Date().toLocaleString(),
-                tipoPapel: tipo,
+                tipoPapelUsado: item['Tipo de Papel'], // Salva o tipo completo
+                tamanhoPapelUsado: item['Tamanho'], // Salva o tamanho
                 quantidade: quantidade,
                 finalidade: finalidade
             });
 
-            mensagemBaixa.textContent = `Baixa de ${quantidade} de ${tipo} registrada para: ${finalidade}.`;
+            mensagemBaixa.textContent = `Baixa de ${quantidade} folhas de ${item['Tipo de Papel']} (${item['Tamanho']}) registrada para: ${finalidade}.`;
             mensagemBaixa.className = ''; // Remove a classe de erro se houver
             formBaixa.reset(); // Limpa o formulário
 
@@ -189,11 +214,11 @@ formBaixa.addEventListener('submit', (event) => {
             renderizarEstoqueBaixo();
             renderizarPapeisMaisUsados();
         } else {
-            mensagemBaixa.textContent = `Erro: Quantidade insuficiente de ${tipo} em estoque (${item['Quantidade']}).`;
+            mensagemBaixa.textContent = `Erro: Quantidade insuficiente de ${item['Tipo de Papel']} (${item['Tamanho']}) em estoque (${item['Total de Folhas']} folhas).`;
             mensagemBaixa.className = 'error';
         }
     } else {
-        mensagemBaixa.textContent = 'Erro: Tipo de papel não encontrado.';
+        mensagemBaixa.textContent = 'Erro: Papel não encontrado com o Tipo de Papel selecionado.';
         mensagemBaixa.className = 'error';
     }
 });
@@ -215,7 +240,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             salvarDadosNoLocalStorage(); 
         } catch (error) {
             console.error('Erro ao carregar o CSV:', error);
-            tabelaEstoque.innerHTML = '<tr><td colspan="3">Erro ao carregar os dados do estoque.</td></tr>';
+            tabelaEstoque.innerHTML = '<tr><td colspan="6">Erro ao carregar os dados do estoque. Certifique-se de que o CSV existe e está formatado corretamente.</td></tr>'; // 6 colunas
             return;
         }
     }

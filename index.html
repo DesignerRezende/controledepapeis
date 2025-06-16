@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerenciador de Estoque de Papel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -18,9 +19,11 @@
                 <thead>
                     <tr>
                         <th>Tipo de Papel</th>
-                        <th>Quantidade</th>
-                        <th>Aviso Mínimo</th>
-                    </tr>
+                        <th>Tamanho</th>
+                        <th>Quantidade de Pacotes</th>
+                        <th>Folhas por Pacote</th>
+                        <th>Total de Folhas</th>
+                        <th>Estoque Mínimo (Referência)</th> </tr>
                 </thead>
                 <tbody id="tabela-estoque">
                     </tbody>
@@ -35,7 +38,7 @@
                 <select id="tipoPapelBaixa" required>
                     </select>
 
-                <label for="quantidadeBaixa">Quantidade:</label>
+                <label for="quantidadeBaixa">Quantidade de Folhas a ser Baixada:</label>
                 <input type="number" id="quantidadeBaixa" min="1" required>
 
                 <label for="finalidadeBaixa">Finalidade:</label>
