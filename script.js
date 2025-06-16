@@ -15,7 +15,7 @@ const downloadCsvBtn = document.getElementById('downloadCsvBtn');
 
 // --- Funções Auxiliares ---
 
-// Função para parsear CSV (simples, assume ; como delimitador)
+// Função para parsear CSV (assume ; como delimitador)
 async function parseCSV(url) {
     const response = await fetch(url);
     const text = await response.text();
@@ -35,9 +35,11 @@ async function parseCSV(url) {
             let value = values[j];
             const headerName = headers[j].trim(); // Pega o nome da coluna sem espaços extras
             
-            // Tenta converter para número se for uma coluna de quantidade ou estoque
+            // Tenta converter para número as colunas que devem ser numéricas
             if (['Quantidade de Pacotes', 'Folhas por Pacote', 'Total de Folhas', 'Estoque Mínimo'].includes(headerName)) {
-                row[headerName] = parseFloat(value) || 0; // Se não for um número válido, assume 0
+                // Remove qualquer caractere não numérico, como '<'
+                const cleanedValue = value.replace(/[^0-9.-]+/g, ''); 
+                row[headerName] = parseFloat(cleanedValue) || 0; // Se não for um número válido, assume 0
             } else {
                 row[headerName] = value.trim();
             }
@@ -68,8 +70,7 @@ function carregarDadosDoLocalStorage() {
 
 // Gera um CSV a partir dos dados do estoque atualizado
 function gerarCsvParaDownload() {
-    // Ordem das colunas para o CSV de download (DEVE BATER COM AS COLUNAS DO SEU CSV ORIGINAL)
-    // Se a coluna 'Estoque Mínimo' NÃO existir mais no seu CSV, REMOVA-A DAQUI TAMBÉM:
+    // Ordem das colunas para o CSV de download (DEVE BATER EXATAMENTE COM OS NOMES NO SEU CSV ORIGINAL)
     const columnOrder = ['Tipo de Papel', 'Tamanho', 'Quantidade de Pacotes', 'Folhas por Pacote', 'Total de Folhas', 'Estoque Mínimo']; 
     const headers = columnOrder.join(';'); 
     
@@ -77,7 +78,11 @@ function gerarCsvParaDownload() {
         // Mapeia os valores na ordem correta das colunas
         return columnOrder.map(col => {
             // Garante que o valor não seja undefined e converte para string
-            return item[col] !== undefined ? String(item[col]) : '';
+            // Para 'Total de Folhas', se for abaixo do 'Folhas por Pacote' na regra antiga, 
+            // podemos adicionar o '<' novamente na exportação se você quiser.
+            // Por enquanto, vamos exportar apenas o número.
+            let value = item[col] !== undefined ? String(item[col]) : '';
+            return value;
         }).join(';');
     });
     
@@ -107,18 +112,17 @@ function renderizarEstoque() {
 
     estoquePapeis.forEach(item => {
         const row = tabelaEstoque.insertRow();
+        // Acessa as colunas EXATAMENTE como estão no CSV
         row.insertCell().textContent = item['Tipo de Papel'];
         row.insertCell().textContent = item['Tamanho'];
-        row.insertCell().textContent = item['Quantidade de Pacotes'];
-        row.insertCell().textContent = item['Folhas por Pacote'];
+        row.insertCell().textContent = item['Quantidade de Pacotes']; // Corrigido
+        row.insertCell().textContent = item['Folhas por Pacote'];     // Corrigido
         row.insertCell().textContent = item['Total de Folhas'];
-        // Se 'Estoque Mínimo' ainda estiver no seu CSV e você quiser exibi-lo:
-        row.insertCell().textContent = item['Estoque Mínimo'] !== undefined ? item['Estoque Mínimo'] : 'N/A';
+        // Se 'Estoque Mínimo' existir no seu CSV, exiba. Se não, ficará N/A.
+        row.insertCell().textContent = item['Estoque Mínimo'] !== undefined ? item['Estoque Mínimo'] : 'N/A'; 
         
         // Adiciona opções para o select de baixa usando o "Tipo de Papel" completo
         const option = document.createElement('option');
-        // Usamos o "Tipo de Papel" como value e text porque ele parece ser único o suficiente
-        // Se houver tipos de papel duplicados, considere adicionar um ID ou uma combinação de campos mais única.
         option.value = item['Tipo de Papel']; 
         option.textContent = `${item['Tipo de Papel']} (${item['Tamanho']})`;
         tipoPapelBaixaSelect.appendChild(option);
@@ -129,8 +133,8 @@ function renderizarEstoque() {
 function renderizarEstoqueBaixo() {
     listaEstoqueBaixo.innerHTML = '';
     const itensBaixo = estoquePapeis.filter(item => 
-        // Lógica NOVA: Total de Folhas < Folhas por Pacote
-        // Garante que 'Total de Folhas' e 'Folhas por Pacote' são números para a comparação
+        // Lógica: Total de Folhas < Folhas por Pacote
+        // Garante que ambos são números antes de comparar
         parseFloat(item['Total de Folhas']) < parseFloat(item['Folhas por Pacote']) 
     );
 
@@ -141,7 +145,6 @@ function renderizarEstoqueBaixo() {
 
     itensBaixo.forEach(item => {
         const li = document.createElement('li');
-        // Mensagem mais clara sobre o motivo do alerta
         li.textContent = `${item['Tipo de Papel']} (${item['Tamanho']}): ${item['Total de Folhas']} folhas em estoque (Mínimo para próximo pacote: ${item['Folhas por Pacote']} folhas).`;
         listaEstoqueBaixo.appendChild(li);
     });
