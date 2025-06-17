@@ -49,7 +49,7 @@ async function enviarParaAPI(linhaCSVCompleta) {
             console.error('Erro ao enviar dados para a API:', errorText);
         }
     } catch (erro) {
-        alert('Ocorreu um erro de conexão. Verifique sua internet ou tente novamente.');
+        alert('Ocorreu um erro de conexão. Verifique sua internet ou inesperado: ' + erro.message);
         console.error('Erro na requisição fetch:', erro);
     }
 }
@@ -79,14 +79,14 @@ async function carregarEstoque() {
             if (dados.length === 0) {
                 const row = corpoTabela.insertRow();
                 const cell = row.insertCell(0);
-                cell.colSpan = 7; // Ajustado para 7 colunas visíveis
+                cell.colSpan = 7; 
                 cell.textContent = 'Nenhum item no estoque ainda.';
                 cell.style.textAlign = 'center';
                 return;
             }
 
             dados.forEach(linha => {
-                const colunas = linha.split(';'); // Divide a linha por ponto e vírgula
+                const colunas = linha.split(';'); 
                 const row = corpoTabela.insertRow();
 
                 // Mapeia as colunas do CSV para as células da tabela HTML
@@ -104,9 +104,7 @@ async function carregarEstoque() {
                 row.insertCell(4).textContent = colunas[4] ? colunas[4].trim() : ''; // Qtd. Pacotes
                 row.insertCell(5).textContent = colunas[5] ? colunas[5].trim() : ''; // Folhas/Pct.
                 row.insertCell(6).textContent = colunas[6] ? colunas[6].trim() : ''; // Total Folhas
-                // Não insere a coluna de Estoque Mínimo na tabela HTML (colSpan ajustado)
 
-                // Armazena o item completo (objeto) para uso no dropdown de baixa
                 estoqueAtualCompleto.push({
                     tipoPapel: tipoPapel,
                     gramatura: gramatura,
@@ -118,21 +116,20 @@ async function carregarEstoque() {
                     estoqueMinimo: estoqueMinimo
                 });
 
-                // Lógica de Estoque Baixo: Usa o Estoque Mínimo direto do CSV
                 if (totalFolhas < estoqueMinimo) {
                     row.classList.add('estoque-baixo');
                 }
             });
 
-            // Popula os dropdowns ao carregar, mas eles só serão usados quando o pop-up de baixa abrir
-            popularDropdownsBaixa(); 
+            // Popula os dropdowns ao carregar, mas eles só serão usados quando o pop-up de baixa for aberto.
+            // A função popularDropdownsBaixa é chamada quando o pop-up é acionado.
 
         } else {
             const errorText = await response.text();
             console.error('Erro ao carregar estoque da API:', errorText);
             const row = corpoTabela.insertRow();
             const cell = row.insertCell(0);
-            cell.colSpan = 7; // Ajustado para 7 colunas
+            cell.colSpan = 7; 
             cell.textContent = 'Erro ao carregar o estoque.';
             cell.style.color = 'red';
         }
@@ -140,7 +137,7 @@ async function carregarEstoque() {
         console.error('Erro de conexão ao carregar estoque:', erro);
         const row = corpoTabela.insertRow();
         const cell = row.insertCell(0);
-        cell.colSpan = 7; // Ajustado para 7 colunas
+        cell.colSpan = 7; 
         cell.textContent = 'Problema de conexão ao carregar estoque.';
         cell.style.color = 'red';
     }
@@ -154,12 +151,9 @@ function popularDropdownsBaixa() {
 
     if (!selectTipoPapel || !selectGramatura) return;
 
-    // Limpa e adiciona opção padrão para Tipo de Papel
     selectTipoPapel.innerHTML = '<option value="">Selecione o Tipo de Papel</option>';
-    // Limpa e adiciona opção padrão para Gramatura (inicialmente vazia)
     selectGramatura.innerHTML = '<option value="">Selecione a Gramatura</option>';
 
-    // Coleta tipos de papel únicos
     const tiposUnicos = [...new Set(estoqueAtualCompleto.map(item => item.tipoPapel))].sort();
     tiposUnicos.forEach(tipo => {
         const option = document.createElement('option');
@@ -168,8 +162,6 @@ function popularDropdownsBaixa() {
         selectTipoPapel.appendChild(option);
     });
 
-    // Event listener para quando o Tipo de Papel muda
-    // Remove listener antigo antes de adicionar um novo para evitar duplicatas
     selectTipoPapel.removeEventListener('change', handleTipoPapelBaixaChange); 
     selectTipoPapel.addEventListener('change', handleTipoPapelBaixaChange);
 }
@@ -179,14 +171,13 @@ function handleTipoPapelBaixaChange() {
     const selectGramatura = document.getElementById('inputGramaturaBaixa');
 
     const tipoSelecionado = selectTipoPapel.value;
-    selectGramatura.innerHTML = '<option value="">Selecione a Gramatura</option>'; // Limpa ao mudar tipo
+    selectGramatura.innerHTML = '<option value="">Selecione a Gramatura</option>'; 
 
     if (tipoSelecionado) {
-        // Filtra as gramaturas para o tipo de papel selecionado
         const gramaturasUnicas = [...new Set(estoqueAtualCompleto
-            .filter(item => item.tipoPapel === tipoSelecionado && item.gramatura) // Filtra também por gramatura existente
+            .filter(item => item.tipoPapel === tipoSelecionado && item.gramatura) 
             .map(item => item.gramatura)
-        )].sort((a, b) => { // Ordena gramaturas numericamente (se forem números com "g/m²")
+        )].sort((a, b) => { 
             const numA = parseFloat(a);
             const numB = parseFloat(b);
             return numA - numB;
@@ -211,9 +202,9 @@ function calcularTotalFolhasEntrada() {
     const folhasPct = parseFloat(folhasPctInput.value);
 
     if (!isNaN(qtdPacotes) && !isNaN(folhasPct) && qtdPacotes >= 0 && folhasPct >= 0) {
-        totalFolhasInput.value = (qtdPacotes * folhasPct).toFixed(0); // Arredonda para 0 casas decimais
+        totalFolhasInput.value = (qtdPacotes * folhasPct).toFixed(0); 
     } else {
-        totalFolhasInput.value = ''; // Limpa se os valores não forem válidos
+        totalFolhasInput.value = ''; 
     }
 }
 
@@ -236,8 +227,7 @@ function registrarEntrada() {
     const folhasPct = parseFloat(inputFolhasPct ? inputFolhasPct.value : '0');
     const totalFolhas = parseFloat(inputTotalFolhas ? inputTotalFolhas.value : '0');
 
-    let estoqueMinimoDoItem = 0; // Valor padrão
-    // Busca o estoque mínimo para este item, se ele já existe na tabela carregada
+    let estoqueMinimoDoItem = 0; 
     const itemExistente = estoqueAtualCompleto.find(item => 
         item.tipoPapel === tipoPapel && item.gramatura === gramatura &&
         item.marca === marca && item.tamanho === tamanho
@@ -251,8 +241,6 @@ function registrarEntrada() {
         return;
     }
 
-    // CORREÇÃO: Removido o erro de sintaxe na linhaCSV (assegurando que não haja chaves duplas ou formatação LaTeX)
-    // Ordem: Tipo de Papel;Gramatura;Marca;Tamanho;Qtd. Pacotes;Folhas por Pacote;Total de Folhas;Estoque Mínimo
     const linhaCSV = `<span class="math-inline">\{tipoPapel\};</span>{gramatura};<span class="math-inline">\{marca\};</span>{tamanho};<span class="math-inline">\{quantidade\};</span>{folhasPct};<span class="math-inline">\{totalFolhas\};</span>{estoqueMinimoDoItem}`;
 
     enviarParaAPI(linhaCSV);
@@ -284,10 +272,6 @@ function registrarBaixa() {
         return;
     }
 
-    // CORREÇÃO: Removido o erro de sintaxe na linhaCSV
-    // Para baixa, registramos o valor NEGATIVO da quantidade.
-    // O campo 'Uso' é colocado na coluna de Marca para manter a contagem de colunas.
-    // Ordem: Tipo de Papel;Gramatura;Marca;Tamanho;Qtd. Pacotes;Folhas por Pacote;Total de Folhas;Estoque Mínimo
     const linhaCSV = `<span class="math-inline">\{tipoPapel\};</span>{gramatura};<span class="math-inline">\{uso\};;;</span>{-quantidade};;`; 
 
     enviarParaAPI(linhaCSV);
@@ -334,7 +318,7 @@ function handleLogin() {
     const loginForm = document.getElementById('loginForm');
     const entradaSection = document.getElementById('entradaSection');
     const baixaSection = document.getElementById('baixaSection');
-    const loginMovimentacaoPopup = document.getElementById('loginMovimentacaoPopup');
+    // const loginMovimentacaoPopup = document.getElementById('loginMovimentacaoPopup'); // Removido, pois já está no escopo global do DOMContentLoaded
 
 
     if (password === SENHA_PADRAO) {
@@ -350,7 +334,7 @@ function handleLogin() {
             entradaSection.style.display = 'none';
             popularDropdownsBaixa(); // Popula dropdowns para baixa
         }
-        // REMOVIDO ALERTA DE SUCESSO DE LOGIN AQUI
+        // Não há alert de sucesso de login
 
         // Limpa o campo de senha após sucesso
         document.getElementById('passwordInput').value = '';
@@ -369,6 +353,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Esconder o pop-up de login/movimentação no início
     document.getElementById('loginMovimentacaoPopup').style.display = 'none';
+
+    // Esconder as seções de entrada e baixa (elas aparecerão após o login)
+    document.getElementById('entradaSection').style.display = 'none';
+    document.getElementById('baixaSection').style.display = 'none';
+    // Garantir que o formulário de login esteja visível quando o pop-up for aberto
+    document.getElementById('loginForm').style.display = 'block';
+
 
     // Conecta o botão de login dentro do pop-up
     const loginButton = document.getElementById('loginButton');
@@ -401,12 +392,12 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('loginMovimentacaoPopup').style.display = 'none';
 
             // Reseta o estado do pop-up para a próxima vez que for aberto
-            document.getElementById('loginForm').style.display = 'block'; // Mostra o form de login
-            document.getElementById('entradaSection').style.display = 'none'; // Esconde entrada
-            document.getElementById('baixaSection').style.display = 'none'; // Esconde baixa
+            document.getElementById('loginForm').style.display = 'block'; 
+            document.getElementById('entradaSection').style.display = 'none'; 
+            document.getElementById('baixaSection').style.display = 'none'; 
 
-            document.getElementById('passwordInput').value = ''; // Limpa senha
-            document.getElementById('loginMessage').textContent = ''; // Limpa mensagem
+            document.getElementById('passwordInput').value = ''; 
+            document.getElementById('loginMessage').textContent = ''; 
 
             // Garante que o olhinho volte ao normal
             if (togglePassword) { 
@@ -438,8 +429,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Conecta os botões de CONFIRMAR dentro das seções de entrada/baixa
-    const btnEntradaConfirmar = document.getElementById('btnEntradaConfirmar'); // IDs corrigidos
-    const btnBaixaConfirmar = document.getElementById('btnBaixaConfirmar'); // IDs corrigidos
+    const btnEntradaConfirmar = document.getElementById('btnEntradaConfirmar'); 
+    const btnBaixaConfirmar = document.getElementById('btnBaixaConfirmar'); 
     const btnDownloadCSV = document.getElementById('btnDownloadCSV');
 
     if (btnEntradaConfirmar) {
