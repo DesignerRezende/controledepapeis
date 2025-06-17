@@ -1,12 +1,12 @@
 Tipo de Papel;Marca;Tamanho;Quantidade de Pacotes;Folhas por Pacote;Total de Folhas;Estoque Mínimo
-Papel fotográfico matte 230g/m²;Masterprint;A4;3;100;295;100
-Papel fotográfico matte 220g/m² dupla face;Masterprint;A4;2;100;200;100
-Papel fotográfico matte 170g/m²;Masterprint;A4;3;100;295;100
-Papel fotográfico matte 108g/m²;Masterprint;A4;5;100;495;100
-Papel fotográfico glossy 180g/m²;Masterprint;A4;2;50;95;50
-Papel fotográfico glossy auto adesivo 180g/m²;Masterprint;A4;2;50;95;50
-Filme adesivo vinil transparente 150g/m²;Masterprint;A4;2;10;15;10
-Papel fotográfico matte auto adesivo 108g/m²;Masterprint;A4;4;20;75;20
+Papel Fotográfico Matte 230g/m²;Masterprint;A4;3;100;295;100
+Papel Fotográfico Matte 220g/m² Dupla Face;Masterprint;A4;2;100;200;100
+Papel Fotográfico Matte 170g/m²;Masterprint;A4;3;100;295;100
+Papel Fotográfico Matte 108g/m²;Masterprint;A4;5;100;495;100
+Papel Fotográfico Glossy 180g/m²;Masterprint;A4;2;50;95;50
+Papel Fotográfico Glossy Autoadesivo 180g/m²;Masterprint;A4;2;50;95;50
+Filme Adesivo Vinil Transparente 150g/m²;Masterprint;A4;2;10;15;10
+Papel Fotográfico Matte Autoadesivo 108g/m²;Masterprint;A4;4;20;75;20
 Papel Cartão 180g/m²;Jandaia;A4;1;50;45;50
 Papel Offset A4 240g/m²;Off Paper;A4;1;50;45;50
 Papel Linho Branco A4 180g/m²;Off Paper;A4;1;50;45;50
@@ -19,7 +19,7 @@ Papel Vergê Creme A4 180g/m²;Usapel;A4;1;50;45;50
 Papel Casca de Ovo Palha A4 180g/m²;Off Paper;A4;1;50;45;50
 Papel Reciclato Natural A4 180g/m²;Dritter;A4;1;50;45;50
 Filme Adesivo Vinil Branco A4 135g/m²;Masterprint;A4;1;10;5;10
-Papel fotográfico glossy textura pérola A4 200g/m²;Masterprint;A4;2;20;40;20
-Papel fotográfico glossy textura couro A4 200g/m²;Masterprint;A4;2;20;40;20
-Papel fotográfico glossy dupla face A4 180g/m²;Masterprint;A4;2;20;35;20
+Papel Fotográfico Glossy Textura Pérola A4 200g/m²;Masterprint;A4;2;20;40;20
+Papel Fotográfico Glossy Textura Couro A4 200g/m²;Masterprint;A4;2;20;40;20
+Papel Fotográfico Glossy Dupla Face A4 180g/m²;Masterprint;A4;2;20;35;20
 Filme Adesivo Transparente A4 150g/m²;Masterprint;A4;1;10;2;10
