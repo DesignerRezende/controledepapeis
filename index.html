@@ -22,8 +22,7 @@
                         <th>Qtd. Pacotes</th>
                         <th>Folhas/Pct.</th>
                         <th>Total Folhas</th>
-                        <th>Estoque Mín.</th>
-                    </tr>
+                        </tr>
                 </thead>
                 <tbody id="tabela-estoque">
                     </tbody>
@@ -33,20 +32,24 @@
 
         <section id="dar-baixa">
             <h2>Dar Baixa em Material</h2>
-            <form id="form-baixa">
-                <label for="tipoPapelBaixa">Tipo de Papel:</label>
-                <select id="tipoPapelBaixa" required>
-                    </select>
+            <button id="open-login-btn">Acessar Formulário de Baixa</button>
+            
+            <div id="form-baixa-container" class="hidden">
+                <form id="form-baixa">
+                    <label for="tipoPapelBaixa">Tipo de Papel:</label>
+                    <select id="tipoPapelBaixa" required>
+                        </select>
 
-                <label for="quantidadeBaixa">Quantidade de Folhas a ser Baixada:</label>
-                <input type="number" id="quantidadeBaixa" min="1" required>
+                    <label for="quantidadeBaixa">Quantidade de Folhas a ser Baixada:</label>
+                    <input type="number" id="quantidadeBaixa" min="1" required>
 
-                <label for="finalidadeBaixa">Finalidade:</label>
-                <input type="text" id="finalidadeBaixa" placeholder="Ex: Impressão de documentos, Recorte, etc." required>
+                    <label for="finalidadeBaixa">Finalidade:</label>
+                    <input type="text" id="finalidadeBaixa" placeholder="Ex: Impressão de documentos, Recorte, etc." required>
 
-                <button type="submit">Registrar Baixa</button>
-            </form>
-            <p id="mensagem-baixa"></p>
+                    <button type="submit">Registrar Baixa</button>
+                </form>
+                <p id="mensagem-baixa"></p>
+            </div>
         </section>
 
         <section id="estoque-baixo">
@@ -61,6 +64,20 @@
                 </ul>
         </section>
     </main>
+
+    <div id="login-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2>Acesso Restrito</h2>
+            <p>Por favor, insira a senha para continuar.</p>
+            <form id="login-form">
+                <label for="password">Senha:</label>
+                <input type="password" id="password" required>
+                <button type="submit">Entrar</button>
+            </form>
+            <p id="login-error"></p>
+            <button id="close-modal-btn">Fechar</button>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>
