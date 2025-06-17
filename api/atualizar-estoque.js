@@ -17,18 +17,20 @@ module.exports = async (req, res) => {
 
     try {
         if (!fs.existsSync(filePath)) {
+            // Se o arquivo não existe, precisamos criar ele com o cabeçalho ATUALIZADO
             shouldAddHeader = true;
-            fileContent = "Tipo de Papel;Marca;Tamanho;Qtd. Pacotes;Folhas/Pct.;Total Folhas\n";
+            fileContent = "Tipo de Papel;Gramatura;Marca;Tamanho;Qtd. Pacotes;Folhas por Pacote;Total de Folhas;Estoque Mínimo\n";
         } else {
             fileContent = await fs.promises.readFile(filePath, 'utf8');
+            // Basicamente, se o arquivo existe e está vazio ou só tem linha de quebra, adicionamos cabeçalho
             if (fileContent.trim() === '') {
                 shouldAddHeader = true;
-                fileContent = "Tipo de Papel;Marca;Tamanho;Qtd. Pacotes;Folhas/Pct.;Total Folhas\n";
+                fileContent = "Tipo de Papel;Gramatura;Marca;Tamanho;Qtd. Pacotes;Folhas por Pacote;Total de Folhas;Estoque Mínimo\n";
             }
         }
-        
+
         const contentToAdd = (fileContent.trim() !== '' && !shouldAddHeader ? '\n' : '') + novaLinhaCSV;
-        
+
         await fs.promises.appendFile(filePath, contentToAdd, 'utf8');
 
         res.status(200).json({ message: 'Estoque atualizado com sucesso!' });
