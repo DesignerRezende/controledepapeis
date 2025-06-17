@@ -153,3 +153,40 @@ footer {
     color: #666;
     font-weight: 300; /* Light */
 }
+/* --- ESTILOS ADICIONAIS PARA A TABELA DE ESTOQUE --- */
+
+/* Centraliza o texto dos cabeçalhos e das células */
+#estoque-atual th,
+#estoque-atual td {
+    text-align: center;
+    vertical-align: middle; /* Alinha o texto verticalmente ao centro */
+}
+
+/* Deixa o texto das células em semibold */
+#estoque-atual td {
+    font-weight: 600; /* 600 corresponde a Semibold */
+}
+
+/* Ajusta a fonte do cabeçalho para evitar quebras */
+#estoque-atual th {
+    font-weight: 700; /* Bold para dar mais destaque ao cabeçalho */
+    font-size: 14px;  /* Tamanho de fonte um pouco menor para garantir o ajuste */
+    white-space: nowrap; /* Impede a quebra de linha no cabeçalho */
+}
+
+/* Melhora a aparência da mensagem de feedback */
+#mensagem-baixa {
+    text-align: center;
+    font-weight: 600;
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 5px;
+}
+#mensagem-baixa.success {
+    background-color: #d4edda; /* Verde claro */
+    color: #155724; /* Verde escuro */
+}
+#mensagem-baixa.error {
+    background-color: #f8d7da; /* Vermelho claro */
+    color: #721c24; /* Vermelho escuro */
+}
