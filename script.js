@@ -1,7 +1,7 @@
 // --- Variáveis Globais ---
-let estoquePapeis = []; // Armazenará os dados do CSV
-let historicoUso = []; // Armazenará o histórico de baixas
-const CSV_FILE_PATH = 'Controle_de_Papeis.csv'; // Caminho do seu CSV
+let estoquePapeis = [];
+let historicoUso = [];
+const CSV_FILE_PATH = 'Controle_de_Papeis.csv';
 
 // --- Elementos do DOM ---
 const tabelaEstoque = document.getElementById('tabela-estoque');
@@ -12,21 +12,29 @@ const listaEstoqueBaixo = document.getElementById('lista-estoque-baixo');
 const listaPapeisUsados = document.getElementById('lista-papeis-usados');
 const downloadCsvBtn = document.getElementById('downloadCsvBtn');
 
+// Elementos para o Modal de Login
+const loginModal = document.getElementById('login-modal');
+const loginForm = document.getElementById('login-form');
+const openLoginBtn = document.getElementById('open-login-btn');
+const closeModalBtn = document.getElementById('close-modal-btn');
+const formBaixaContainer = document.getElementById('form-baixa-container');
+
 
 // --- Funções Principais ---
 
 /**
  * Define o estoque mínimo com base na quantidade de folhas por pacote.
+ * REGRA ATUALIZADA
  * @param {number | string} folhasPorPacote - A quantidade de folhas no pacote.
  * @returns {number} O estoque mínimo de folhas.
  */
 function getEstoqueMinimo(folhasPorPacote) {
     const folhas = parseInt(folhasPorPacote, 10);
     if (folhas === 100) return 40;
-    if (folhas === 50) return 30;
-    if (folhas === 20) return 10;
-    if (folhas === 10) return 5;
-    return 0; // Retorna 0 como padrão se não houver regra
+    if (folhas === 50) return 20; // Novo valor
+    if (folhas === 20) return 8;  // Novo valor
+    if (folhas === 10) return 4;  // Novo valor
+    return 0; // Padrão
 }
 
 /**
@@ -43,14 +51,13 @@ async function parseCSV(url) {
 
         const data = [];
         for (let i = 1; i < lines.length; i++) {
-            if (!lines[i]) continue; // Pula linhas vazias
+            if (!lines[i]) continue;
             const values = lines[i].trim().split(';');
             if (values.length === headers.length) {
                 const obj = {};
                 for (let j = 0; j < headers.length; j++) {
                     obj[headers[j]] = values[j];
                 }
-                // *** APLICA A NOVA REGRA DE ESTOQUE MÍNIMO ***
                 obj['Estoque Mínimo'] = getEstoqueMinimo(obj['Folhas por Pacote']);
                 data.push(obj);
             }
@@ -58,7 +65,7 @@ async function parseCSV(url) {
         return data;
     } catch (error) {
         console.error("Falha ao carregar ou processar o CSV:", error);
-        throw error; // Propaga o erro para ser tratado mais tarde
+        throw error;
     }
 }
 
@@ -66,14 +73,14 @@ async function parseCSV(url) {
  * Renderiza a tabela de estoque na página.
  */
 function renderizarTabela() {
-    tabelaEstoque.innerHTML = ''; // Limpa a tabela antes de renderizar
+    tabelaEstoque.innerHTML = '';
     if (estoquePapeis.length === 0) {
-        tabelaEstoque.innerHTML = '<tr><td colspan="6">Nenhum dado de estoque encontrado.</td></tr>';
+        // Ajustado para 5 colunas visíveis
+        tabelaEstoque.innerHTML = '<tr><td colspan="5">Nenhum dado de estoque encontrado.</td></tr>';
         return;
     }
     estoquePapeis.forEach(item => {
         const row = document.createElement('tr');
-        // Define um ID único para a linha para facilitar a atualização
         row.id = `item-${item['Tipo de Papel'].replace(/\s+/g, '-')}-${item['Tamanho']}`;
         row.innerHTML = `
             <td>${item['Tipo de Papel']}</td>
@@ -81,8 +88,7 @@ function renderizarTabela() {
             <td>${item['Quantidade de Pacotes']}</td>
             <td>${item['Folhas por Pacote']}</td>
             <td>${item['Total de Folhas']}</td>
-            <td>${item['Estoque Mínimo']}</td>
-        `;
+            `;
         tabelaEstoque.appendChild(row);
     });
 }
@@ -101,7 +107,7 @@ function renderizarAlertaEstoqueBaixo() {
     } else {
         itensBaixos.forEach(item => {
             const li = document.createElement('li');
-            li.textContent = `Atenção: ${item['Tipo de Papel']} (${item['Tamanho']}) está com apenas ${item['Total de Folhas']} folhas.`;
+            li.textContent = `Atenção: ${item['Tipo de Papel']} (${item['Tamanho']}) está com apenas ${item['Total de Folhas']} folhas. (Mínimo: ${item['Estoque Mínimo']})`;
             listaEstoqueBaixo.appendChild(li);
         });
     }
@@ -114,7 +120,7 @@ function popularSelectBaixa() {
     tipoPapelBaixaSelect.innerHTML = '<option value="" disabled selected>Selecione um papel</option>';
     estoquePapeis.forEach((item, index) => {
         const option = document.createElement('option');
-        option.value = index; // Usa o índice do array como valor
+        option.value = index;
         option.textContent = `${item['Tipo de Papel']} - ${item['Tamanho']}`;
         tipoPapelBaixaSelect.appendChild(option);
     });
@@ -128,15 +134,11 @@ function gerarCsvParaDownload() {
         alert("Não há dados de estoque para baixar.");
         return;
     }
-    
-    // Usa os cabeçalhos do primeiro item como referência
     const headers = Object.keys(estoquePapeis[0]);
-    let csvContent = headers.join(";") + "\r\n"; // Adiciona cabeçalho
-
+    let csvContent = headers.join(";") + "\r\n";
     estoquePapeis.forEach(item => {
         const row = headers.map(header => {
             let value = item[header];
-            // Se o valor contiver o delimitador, coloca entre aspas
             if (typeof value === 'string' && value.includes(';')) {
                 value = `"${value}"`;
             }
@@ -144,8 +146,6 @@ function gerarCsvParaDownload() {
         });
         csvContent += row.join(";") + "\r\n";
     });
-    
-    // Cria um "Blob" que é um objeto de arquivo
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
@@ -157,8 +157,42 @@ function gerarCsvParaDownload() {
     document.body.removeChild(link);
 }
 
-// --- Funções de Persistência (LocalStorage) ---
+// --- Funções de Login ---
 
+/**
+ * Verifica se o usuário já fez login na sessão atual.
+ */
+function checkLoginState() {
+    if (sessionStorage.getItem('loggedIn') === 'true') {
+        formBaixaContainer.classList.remove('hidden');
+        openLoginBtn.classList.add('hidden');
+    }
+}
+
+/**
+ * Processa a tentativa de login.
+ * @param {Event} e - O evento de submissão do formulário.
+ */
+function handleLogin(e) {
+    e.preventDefault();
+    const passwordInput = document.getElementById('password');
+    const loginError = document.getElementById('login-error');
+    const correctPassword = "1cafez!n";
+
+    if (passwordInput.value === correctPassword) {
+        sessionStorage.setItem('loggedIn', 'true');
+        loginModal.classList.add('hidden');
+        checkLoginState(); // Mostra o formulário e esconde o botão de acesso
+        loginError.textContent = '';
+        passwordInput.value = '';
+    } else {
+        loginError.textContent = 'Senha incorreta. Tente novamente.';
+        passwordInput.focus();
+    }
+}
+
+
+// --- Funções de Persistência (LocalStorage) ---
 function salvarDadosNoLocalStorage() {
     localStorage.setItem('estoquePapeis', JSON.stringify(estoquePapeis));
     localStorage.setItem('historicoUso', JSON.stringify(historicoUso));
@@ -167,17 +201,11 @@ function salvarDadosNoLocalStorage() {
 function carregarDadosDoLocalStorage() {
     const estoqueSalvo = localStorage.getItem('estoquePapeis');
     const historicoSalvo = localStorage.getItem('historicoUso');
-    if (estoqueSalvo) {
-        estoquePapeis = JSON.parse(estoqueSalvo);
-    }
-    if (historicoSalvo) {
-        historicoUso = JSON.parse(historicoSalvo);
-    }
+    if (estoqueSalvo) estoquePapeis = JSON.parse(estoqueSalvo);
+    if (historicoSalvo) historicoUso = JSON.parse(historicoSalvo);
 }
 
 // --- Eventos ---
-
-// Evento de envio do formulário de baixa
 formBaixa.addEventListener('submit', (e) => {
     e.preventDefault();
     const itemIndex = tipoPapelBaixaSelect.value;
@@ -189,19 +217,14 @@ formBaixa.addEventListener('submit', (e) => {
         mensagemBaixa.className = 'error';
         return;
     }
-
     const item = estoquePapeis[itemIndex];
     if (quantidade > parseInt(item['Total de Folhas'])) {
         mensagemBaixa.textContent = `Erro: Quantidade insuficiente em estoque (${item['Total de Folhas']} folhas).`;
         mensagemBaixa.className = 'error';
         return;
     }
-
-    // Atualiza o estoque
     item['Total de Folhas'] = parseInt(item['Total de Folhas']) - quantidade;
     item['Quantidade de Pacotes'] = (item['Total de Folhas'] / parseInt(item['Folhas por Pacote'])).toFixed(2);
-
-    // Adiciona ao histórico
     historicoUso.push({
         tipo: item['Tipo de Papel'],
         tamanho: item['Tamanho'],
@@ -209,38 +232,35 @@ formBaixa.addEventListener('submit', (e) => {
         finalidade: finalidade,
         data: new Date().toLocaleString('pt-BR')
     });
-
-    // Salva e atualiza a interface
     salvarDadosNoLocalStorage();
     renderizarTabela();
     renderizarAlertaEstoqueBaixo();
-    //renderizarPapeisMaisUsados(); // Descomente se tiver essa função
-
     mensagemBaixa.textContent = `Baixa de ${quantidade} folhas de ${item['Tipo de Papel']} registrada com sucesso!`;
     mensagemBaixa.className = 'success';
     formBaixa.reset();
 });
 
-// Evento para o botão de download CSV
 downloadCsvBtn.addEventListener('click', gerarCsvParaDownload);
+
+// Eventos de Login
+openLoginBtn.addEventListener('click', () => loginModal.classList.remove('hidden'));
+closeModalBtn.addEventListener('click', () => loginModal.classList.add('hidden'));
+loginForm.addEventListener('submit', handleLogin);
 
 // --- Inicialização da Aplicação ---
 document.addEventListener('DOMContentLoaded', async () => {
     carregarDadosDoLocalStorage();
-
     if (estoquePapeis.length === 0) {
         try {
             estoquePapeis = await parseCSV(CSV_FILE_PATH);
             salvarDadosNoLocalStorage();
         } catch (error) {
-            tabelaEstoque.innerHTML = '<tr><td colspan="6">Erro ao carregar dados. Verifique o console para mais detalhes.</td></tr>';
+            tabelaEstoque.innerHTML = '<tr><td colspan="5">Erro ao carregar dados.</td></tr>';
             return;
         }
     }
-
-    // Renderização inicial
     renderizarTabela();
     renderizarAlertaEstoqueBaixo();
     popularSelectBaixa();
-    //renderizarPapeisMaisUsados(); // Descomente se tiver essa função
+    checkLoginState(); // Verifica o estado do login ao carregar a página
 });
