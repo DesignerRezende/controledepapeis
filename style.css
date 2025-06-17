@@ -1,249 +1,32 @@
-/* --- Estilos Gerais --- */
-body {
-    font-family: 'Montserrat', sans-serif; /* Aplica Montserrat como fonte padrão */
-    margin: 0;
-    padding: 0;
-    background-color: #f4f4f4;
-    color: #333;
+/* --- Estilos para o "Olhinho" da Senha --- */
+.password-input-container {
+    position: relative;
+    width: calc(100% - 20px); /* Mesma largura do input */
+    margin: 0 auto 15px auto; /* Centraliza e adiciona margem inferior */
 }
 
-/* --- Novo Cabeçalho --- */
-header {
-    width: 100%;
-    background-color: #fff; /* Fundo branco para a seção da logo */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    padding-bottom: 10px; /* Espaço para separar da faixa */
+.password-input-container input {
+    width: 100%; /* Ocupa a largura total do container */
+    padding-right: 40px; /* Espaço para o ícone */
+    box-sizing: border-box; /* Garante que padding não aumente a largura total */
 }
 
-.header-logo-top {
-    display: flex;
-    justify-content: center; /* Centraliza a logo horizontalmente */
-    padding: 15px 0; /* Espaçamento acima e abaixo da logo */
-}
-
-.logo-criacao-header {
-    max-width: 150px; /* Ajuste o tamanho da logo conforme necessário */
-    height: auto;
-}
-
-.header-band {
-    background-color: #002D62; /* Azul escuro para a faixa */
-    color: #fff;
-    padding: 15px 20px;
-    text-align: center;
-}
-
-.header-band h1 {
-    margin: 0;
-    font-size: 2.2em; /* Tamanho do título */
-    font-weight: 800; /* Montserrat ExtraBold para o título principal */
-}
-
-/* --- Pop-up de Movimentação (Login e Campos) --- */
-.popup-overlay {
-    display: none; /* Escondido por padrão, JavaScript o mostrará */
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7); /* Fundo escuro semi-transparente */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000; /* Garante que fique acima de outros elementos */
-}
-
-.popup-content {
-    background-color: #fff;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    text-align: center;
-    width: 400px; /* Largura do pop-up, talvez precise ajustar */
-    max-height: 90vh; /* Limita altura em telas pequenas */
-    overflow-y: auto; /* Adiciona scroll se conteúdo for grande */
-    position: relative; /* Para posicionar o botão de fechar */
-}
-
-.close-button {
+.toggle-password {
     position: absolute;
-    top: 10px;
-    right: 15px;
-    font-size: 1.5em;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
     cursor: pointer;
     color: #888;
+    font-size: 1.1em;
 }
 
-.close-button:hover {
+.toggle-password:hover {
     color: #333;
 }
 
-.popup-content h2 {
-    color: #002D62;
-    margin-bottom: 20px;
-    font-weight: 700; /* Montserrat Bold */
-}
-
-.popup-content h3 {
-    color: #002D62;
-    margin-top: 25px;
-    margin-bottom: 15px;
-    font-weight: 700; /* Montserrat Bold */
-}
-
-.popup-content input,
-.popup-content select { /* Adicionado select */
-    width: calc(100% - 20px);
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 1em;
-    font-family: 'Montserrat', sans-serif;
-}
-
-.popup-content button {
-    background-color: #002D62;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1.1em;
-    font-weight: 600;
-    transition: background-color 0.3s ease;
-}
-
-.popup-content button:hover {
-    background-color: #003D82;
-}
-
-#loginMessage {
-    margin-top: 10px;
-    font-weight: 600;
-}
-
-/* Estilos para as seções internas de movimentação dentro do pop-up */
-.movimentacao-inner-section {
-    border-top: 1px solid #eee;
-    padding-top: 20px;
-    margin-top: 20px;
-}
-
-/* --- Estilos da Tabela --- */
-.tabela-container {
-    overflow-x: auto; /* Para rolagem em telas pequenas */
-    margin-top: 0px; /* Removido espaço extra */
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: #fff;
-    padding: 15px;
-}
-
-#tabelaEstoque {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-    font-size: 0.95em;
-}
-
-#tabelaEstoque th, #tabelaEstoque td {
-    padding: 12px 8px;
-    border: 1px solid #ddd;
-    text-align: center; /* Centraliza o texto de todas as células */
-    font-family: 'Montserrat', sans-serif; /* Garante a fonte */
-}
-
-#tabelaEstoque th {
-    background-color: #f2f2f2;
-    font-weight: 800; /* Montserrat ExtraBold para cabeçalhos da tabela (mais pesado) */
-    color: #333;
-}
-
-#tabelaEstoque td {
-    font-weight: 600; /* Montserrat SemiBold para dados da tabela (mais peso) */
-}
-
-/* Alinhamento Específico para a Coluna "Tipo de Papel" (primeira coluna) */
-#tabelaEstoque td:nth-child(1) {
-    text-align: left; /* Alinha à esquerda */
-}
-
-/* Estilo para Linhas de Estoque Baixo */
-.estoque-baixo {
-    background-color: #ffe0e0; /* Cor de fundo suave para alerta */
-    color: #cc0000; /* Cor do texto em vermelho */
-    font-weight: 700; /* Deixa o texto mais evidente */
-}
-
-/* --- Estilos para cards, inputs e botões --- */
-.card {
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    padding: 25px;
-    margin-bottom: 20px;
-}
-
-h2 { /* Ajustado para remover 'Estoque Atual' */
-    color: #002D62;
-    text-align: center;
-    margin-top: 0;
-    font-weight: 700; /* Montserrat Bold para títulos h2 */
-}
-
-.movimentacao-botoes-login { /* Estilo para os botões que abrem o pop-up */
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    margin-top: 20px;
-    margin-bottom: 20px;
-}
-
-.entrada-baixa input, .entrada-baixa select { /* Ajuste para incluir select */
-    width: calc(100% - 22px);
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 0.95em;
-    font-family: 'Montserrat', sans-serif;
-}
-
-.acao-button {
-    background-color: #002D62;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1.1em;
-    font-weight: 600;
-    transition: background-color 0.3s ease;
-    margin-top: 10px;
-}
-
-.acao-button:hover {
-    background-color: #003D82;
-}
-
-/* Ocultar as seções de entrada/baixa dentro do pop-up inicialmente */
-#entradaSection, #baixaSection, #loginForm {
-    display: none; /* Serão controlados pelo JS */
-}
-
-footer {
-    text-align: center;
-    padding: 20px;
-    margin-top: 30px;
-    background-color: #f2f2f2;
-    color: #555;
-    font-size: 0.9em;
-}
-
-.logo-footer {
-    max-width: 100px;
-    height: auto;
-    margin-top: 10px;
+/* Ajuste para a célula de "Nenhum item no estoque" */
+#tabelaEstoque td[colspan] { /* Seleciona células com o atributo colspan */
+    text-align: center !important; /* Força centralização para a mensagem de tabela vazia */
+    font-weight: 500 !important; /* Volta para semibold */
 }
