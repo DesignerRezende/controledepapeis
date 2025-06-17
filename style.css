@@ -192,8 +192,14 @@ footer {
 }
 /* --- ESTILOS ADICIONAIS (JUNHO 2025) --- */
 
-/* Alinha a primeira coluna (Tipo de Papel) à esquerda */
-#estoque-atual th:first-child,
+/* --- ESTILOS ADICIONAIS (AJUSTADOS) --- */
+
+/* Centraliza APENAS o TÍTULO da primeira coluna (herda o estilo geral do th) */
+#estoque-atual th {
+    text-align: center;
+}
+
+/* Alinha o CONTEÚDO (nome do papel) da primeira coluna à esquerda */
 #estoque-atual td:first-child {
     text-align: left;
     padding-left: 10px; /* Adiciona um respiro à esquerda */
