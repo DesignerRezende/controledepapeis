@@ -1,11 +1,13 @@
 // --- VARIÁVEIS GLOBAIS E CONFIGURAÇÕES ---
 const USUARIO_PADRAO = "designer";
-const SENHA_PADRAO = "1cafez!n";
-const REGRAS_ESTOQUE_BAIXO = {
-    "Offset": 2000, "Couche Brilho": 2000, "Couche Fosco": 2000,
-    "Sulphite": 1000, "Adesivo Vinil": 500, "Adesivo Papel": 1000,
-    "Duplex": 500, "Triplex": 500, "Color Plus": 500,
-    "Kraft": 500, "Fotográfico": 100, "Reciclado": 500, "Sublimático": 500
+const SENHA_PADRAO = "1cafez!n"; // A senha CORRETA!
+
+// Novas regras de estoque baixo baseadas em folhas por pacote
+const REGRAS_ESTOQUE_MINIMO_FOLHAS = {
+    100: 40, // Se o pacote tem 100 folhas, o mínimo é 40 folhas totais
+    50: 20,  // Se o pacote tem 50 folhas, o mínimo é 20 folhas totais
+    20: 8,   // Se o pacote tem 20 folhas, o mínimo é 8 folhas totais
+    10: 4    // Se o pacote tem 10 folhas, o mínimo é 4 folhas totais
 };
 
 let estoqueAtualTiposPapel = []; // Para armazenar os tipos de papel para o dropdown da baixa
@@ -40,7 +42,7 @@ async function enviarParaAPI(linhaCSVCompleta) {
             carregarEstoque(); // Atualiza a tabela após a operação
             document.getElementById('movimentacaoPopup').style.display = 'none'; // Fecha o pop-up
         } else {
-            const errorText = await response.text();
+            const errorText = await response.text(); // Pega a resposta como texto
             alert('Erro: ' + errorText);
             console.error('Erro ao enviar dados para a API:', errorText);
         }
@@ -49,6 +51,7 @@ async function enviarParaAPI(linhaCSVCompleta) {
         console.error('Erro na requisição fetch:', erro);
     }
 }
+
 
 // --- FUNÇÃO: CARREGAR ESTOQUE DA API E EXIBIR NA TABELA ---
 
@@ -74,7 +77,7 @@ async function carregarEstoque() {
             if (dados.length === 0) {
                 const row = corpoTabela.insertRow();
                 const cell = row.insertCell(0);
-                cell.colSpan = 6;
+                cell.colSpan = 6; // Número de colunas da sua tabela
                 cell.textContent = 'Nenhum item no estoque ainda.';
                 cell.style.textAlign = 'center';
                 return;
@@ -86,6 +89,8 @@ async function carregarEstoque() {
 
                 const tipoPapel = colunas[0] ? colunas[0].trim() : '';
                 const qtdPacotes = parseFloat(colunas[3]) || 0;
+                const folhasPct = parseFloat(colunas[4]) || 0; // Pega 'Folhas/Pct.'
+                const totalFolhas = parseFloat(colunas[5]) || 0; // Pega 'Total Folhas'
 
                 row.insertCell(0).textContent = tipoPapel;
                 row.insertCell(1).textContent = colunas[1] ? colunas[1].trim() : '';
@@ -99,8 +104,16 @@ async function carregarEstoque() {
                     estoqueAtualTiposPapel.push(tipoPapel);
                 }
 
-                if (REGRAS_ESTOQUE_BAIXO[tipoPapel] !== undefined && qtdPacotes < REGRAS_ESTOQUE_BAIXO[tipoPapel]) {
-                    row.classList.add('estoque-baixo');
+                // *** NOVA LÓGICA DE ESTOQUE BAIXO ***
+                // Calcula o total de folhas para este item
+                // Se Folhas/Pct. for 0 (para itens de baixa, por exemplo), não aplica a regra de estoque baixo
+                if (folhasPct > 0) {
+                    const totalFolhasEmEstoque = qtdPacotes * folhasPct;
+                    const limiteMinimo = REGRAS_ESTOQUE_MINIMO_FOLHAS[folhasPct];
+
+                    if (limiteMinimo !== undefined && totalFolhasEmEstoque < limiteMinimo) {
+                        row.classList.add('estoque-baixo');
+                    }
                 }
             });
 
@@ -155,7 +168,6 @@ function calcularTotalFolhasEntrada() {
     }
 }
 
-
 // --- FUNÇÕES DE ENTRADA/SAÍDA (CHAMADAS APÓS LOGIN) ---
 
 function registrarEntrada() {
@@ -164,17 +176,17 @@ function registrarEntrada() {
     const inputTamanho = document.getElementById('inputTamanhoEntrada');
     const inputQuantidade = document.getElementById('quantidadeEntrada');
     const inputFolhasPct = document.getElementById('inputFolhasPctEntrada');
-    const inputTotalFolhas = document.getElementById('inputTotalFolhasEntrada'); // Este agora é automático
+    const inputTotalFolhas = document.getElementById('inputTotalFolhasEntrada');
 
     const tipoPapel = inputTipoPapel ? inputTipoPapel.value.trim() : '';
     const marca = inputMarca ? inputMarca.value.trim() : '';
     const tamanho = inputTamanho ? inputTamanho.value.trim() : '';
     const quantidade = parseFloat(inputQuantidade.value);
     const folhasPct = parseFloat(inputFolhasPct ? inputFolhasPct.value : '0');
-    const totalFolhas = parseFloat(inputTotalFolhas ? inputTotalFolhas.value : '0'); // Pega o valor já calculado
+    const totalFolhas = parseFloat(inputTotalFolhas ? inputTotalFolhas.value : '0');
 
-    if (!tipoPapel || isNaN(quantidade) || quantidade <= 0) {
-        alert('Por favor, preencha o Tipo de Papel e uma Quantidade válida de pacotes para a entrada.');
+    if (!tipoPapel || isNaN(quantidade) || quantidade <= 0 || isNaN(folhasPct) || folhasPct <= 0 || isNaN(totalFolhas) || totalFolhas <= 0) {
+        alert('Por favor, preencha todos os campos de Tipo de Papel, Quantidade de Pacotes, Folhas/Pct. e Total Folhas para a entrada com valores válidos.');
         return;
     }
 
@@ -210,7 +222,7 @@ function registrarBaixa() {
 
     enviarParaAPI(linhaCSV);
 
-    if (selectTipoPapel) selectTipoPapel.value = ''; // Limpa o select
+    if (selectTipoPapel) selectTipoPapel.value = '';
     inputQuantidade.value = '';
     if (inputUsoBaixa) inputUsoBaixa.value = '';
 }
