@@ -12,13 +12,12 @@ module.exports = async (req, res) => {
 
     try {
         if (!fs.existsSync(filePath)) {
-            // Se o arquivo não existir, retorna apenas o cabeçalho ATUALIZADO como texto CSV
+            // Se o arquivo não existir, retorna apenas o cabeçalho ATUALIZADO (8 colunas)
             const headers = "Tipo de Papel;Gramatura;Marca;Tamanho;Qtd. Pacotes;Folhas por Pacote;Total de Folhas;Estoque Mínimo";
             res.setHeader('Content-Type', 'text/csv; charset=utf-8');
             return res.status(200).send(headers + '\n');
         }
 
-        // Lê o conteúdo do arquivo CSV
         const data = await fs.promises.readFile(filePath, 'utf8');
 
         res.setHeader('Content-Type', 'text/csv; charset=utf-8');
