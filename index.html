@@ -6,17 +6,39 @@
     <title>Estoque de Papéis dos Designers</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="favicon.png" type="image/png">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <div id="loginPopup" class="popup-overlay">
+    <div id="movimentacaoPopup" class="popup-overlay">
         <div class="popup-content">
-            <h2>Login para Acessar</h2>
-            <input type="text" id="usernameInput" placeholder="Usuário">
-            <input type="password" id="passwordInput" placeholder="Senha">
-            <button id="loginButton">Entrar</button>
-            <p id="loginMessage" style="color: red;"></p>
+            <span class="close-button" id="closePopup">&times;</span> <div id="loginForm">
+                <h2>Login para Acessar</h2>
+                <input type="text" id="usernameInput" placeholder="Usuário">
+                <input type="password" id="passwordInput" placeholder="Senha">
+                <button id="loginButton">Entrar</button>
+                <p id="loginMessage" style="color: red;"></p>
+            </div>
+
+            <div id="entradaSection" class="movimentacao-inner-section">
+                <h3>Registrar Entrada</h3>
+                <input type="text" id="inputTipoPapelEntrada" placeholder="Tipo de Papel (ex: Couché)">
+                <input type="text" id="inputMarcaEntrada" placeholder="Marca (ex: Suzano)">
+                <input type="text" id="inputTamanhoEntrada" placeholder="Tamanho (ex: A4)">
+                <input type="number" id="quantidadeEntrada" placeholder="Qtd. Pacotes (ex: 10)" min="1">
+                <input type="number" id="inputFolhasPctEntrada" placeholder="Folhas/Pct. (ex: 500)" min="1">
+                <input type="number" id="inputTotalFolhasEntrada" placeholder="Total Folhas (Automático)" readonly> <button id="btnEntradaConfirmar" class="acao-button">Confirmar Entrada</button>
+            </div>
+
+            <div id="baixaSection" class="movimentacao-inner-section">
+                <h3>Registrar Baixa</h3>
+                <select id="inputTipoPapelBaixa"> <option value="">Selecione o Tipo de Papel</option>
+                    </select>
+                <input type="number" id="quantidadeBaixa" placeholder="Qtd. Pacotes (para baixa)" min="1">
+                <input type="text" id="inputUsoBaixa" placeholder="Uso (ex: Cartão de Visita)">
+                <button id="btnBaixaConfirmar" class="acao-button">Confirmar Baixa</button>
+            </div>
+
         </div>
     </div>
 
@@ -31,7 +53,6 @@
 
     <main>
         <div class="card">
-            <h2>Estoque Atual</h2>
             <div class="tabela-container">
                 <table id="tabelaEstoque">
                     <thead>
@@ -52,26 +73,10 @@
             <button id="btnDownloadCSV" class="acao-button">Baixar Estoque Atualizado (.csv)</button>
         </div>
 
-        <div class="card" id="movimentacaoSection"> <h2>Registrar Movimentação</h2>
-
-            <div class="movimentacao-container">
-                <div class="entrada-baixa">
-                    <h3>Registrar Entrada</h3>
-                    <input type="text" id="inputTipoPapelEntrada" placeholder="Tipo de Papel (ex: Couché)">
-                    <input type="text" id="inputMarcaEntrada" placeholder="Marca (ex: Suzano)">
-                    <input type="text" id="inputTamanhoEntrada" placeholder="Tamanho (ex: A4)">
-                    <input type="number" id="quantidadeEntrada" placeholder="Qtd. Pacotes (ex: 10)" min="1">
-                    <input type="number" id="inputFolhasPctEntrada" placeholder="Folhas/Pct. (ex: 500)" min="1">
-                    <input type="number" id="inputTotalFolhasEntrada" placeholder="Total Folhas (calculado ou manual)" min="0">
-                    <button id="btnEntrada" class="acao-button">Dar Entrada em Material</button>
-                </div>
-
-                <div class="entrada-baixa">
-                    <h3>Registrar Baixa</h3>
-                    <input type="text" id="inputTipoPapelBaixa" placeholder="Tipo de Papel (para baixa)">
-                    <input type="number" id="quantidadeBaixa" placeholder="Qtd. Pacotes (para baixa)" min="1">
-                    <input type="text" id="inputUsoBaixa" placeholder="Uso (ex: Cartão de Visita)"> <button id="btnBaixa" class="acao-button">Dar Baixa em Material</button>
-                </div>
+        <div class="card">
+            <h2>Registrar Movimentação</h2> <div class="movimentacao-botoes-login">
+                <button id="btnAbrirEntrada" class="acao-button">Dar Entrada em Material</button>
+                <button id="btnAbrirBaixa" class="acao-button">Dar Baixa em Material</button>
             </div>
         </div>
     </main>
