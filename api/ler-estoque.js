@@ -18,6 +18,7 @@ module.exports = async (req, res) => {
             return res.status(200).send(headers + '\n');
         }
 
+        // Lê o conteúdo do arquivo CSV
         const data = await fs.promises.readFile(filePath, 'utf8');
 
         res.setHeader('Content-Type', 'text/csv; charset=utf-8');
