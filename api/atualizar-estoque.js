@@ -5,7 +5,7 @@ const { google } = require("googleapis");
 // As variáveis de ambiente (process.env.NOME) serão configuradas na Vercel.
 const SPREADSHEET_ID = process.env.GOOGLE_SHEET_ID; 
 const GOOGLE_CLIENT_EMAIL = process.env.GOOGLE_CLIENT_EMAIL; 
-const GOOGLE_PRIVATE_KEY = Buffer.from(process.env.GOOGLE_PRIVATE_KEY, 'base64').toString('utf8').replace(/\\n/g, '\n'); 
+const GOOGLE_PRIVATE_KEY = Buffer.from(process.env.GOOGLE_PRIVATE_KEY, 'base64').toString('utf8'); 
 
 module.exports = async (req, res) => {
     if (req.method !== 'POST') {
