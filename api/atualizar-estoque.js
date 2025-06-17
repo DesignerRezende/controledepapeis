@@ -28,9 +28,9 @@ module.exports = async (req, res) => {
                 fileContent = "Tipo de Papel;Gramatura;Marca;Tamanho;Qtd. Pacotes;Folhas por Pacote;Total de Folhas;Estoque Mínimo\n";
             }
         }
-        
+
         const contentToAdd = (fileContent.trim() !== '' && !shouldAddHeader ? '\n' : '') + novaLinhaCSV;
-        
+
         await fs.promises.appendFile(filePath, contentToAdd, 'utf8');
 
         res.status(200).json({ message: 'Estoque atualizado com sucesso!' });
