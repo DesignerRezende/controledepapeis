@@ -3,17 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciador de Estoque de Papéis</title>
+    <title>Estoque de Papéis dos Designers</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="favicon.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <div class="logo-container">
-            <img src="logo-rezende.png" alt="Logo Rezende" class="logo">
-            <img src="logo-criacao.png" alt="Logo Criação" class="logo">
+
+    <div id="loginPopup" class="popup-overlay">
+        <div class="popup-content">
+            <h2>Login para Acessar</h2>
+            <input type="text" id="usernameInput" placeholder="Usuário">
+            <input type="password" id="passwordInput" placeholder="Senha">
+            <button id="loginButton">Entrar</button>
+            <p id="loginMessage" style="color: red;"></p>
         </div>
-        <h1>Gerenciador de estoque de papéis do Design Gráfico</h1>
+    </div>
+
+    <header>
+        <div class="header-logo-top">
+            <img src="logo-criacao.png" alt="Logo Criação" class="logo-criacao-header">
+        </div>
+        <div class="header-band">
+            <h1>Estoque de Papéis dos Designers</h1>
+        </div>
     </header>
 
     <main>
@@ -39,8 +52,7 @@
             <button id="btnDownloadCSV" class="acao-button">Baixar Estoque Atualizado (.csv)</button>
         </div>
 
-        <div class="card">
-            <h2>Registrar Movimentação</h2>
+        <div class="card" id="movimentacaoSection"> <h2>Registrar Movimentação</h2>
 
             <div class="movimentacao-container">
                 <div class="entrada-baixa">
@@ -58,7 +70,7 @@
                     <h3>Registrar Baixa</h3>
                     <input type="text" id="inputTipoPapelBaixa" placeholder="Tipo de Papel (para baixa)">
                     <input type="number" id="quantidadeBaixa" placeholder="Qtd. Pacotes (para baixa)" min="1">
-                    <button id="btnBaixa" class="acao-button">Dar Baixa em Material</button>
+                    <input type="text" id="inputUsoBaixa" placeholder="Uso (ex: Cartão de Visita)"> <button id="btnBaixa" class="acao-button">Dar Baixa em Material</button>
                 </div>
             </div>
         </div>
