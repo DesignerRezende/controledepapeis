@@ -193,8 +193,6 @@ h2 { /* Ajustado para remover 'Estoque Atual' */
     font-weight: 700; /* Montserrat Bold para títulos h2 */
 }
 
-/* REMOVIDO H3 pois agora está dentro do popup-content */
-/* .movimentacao-container (agora é a seção dentro do popup) */
 .movimentacao-botoes-login { /* Estilo para os botões que abrem o pop-up */
     display: flex;
     justify-content: center;
@@ -231,8 +229,8 @@ h2 { /* Ajustado para remover 'Estoque Atual' */
 }
 
 /* Ocultar as seções de entrada/baixa dentro do pop-up inicialmente */
-#entradaSection, #baixaSection {
-    display: none;
+#entradaSection, #baixaSection, #loginForm {
+    display: none; /* Serão controlados pelo JS */
 }
 
 footer {
