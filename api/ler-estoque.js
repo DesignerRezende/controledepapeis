@@ -1,13 +1,13 @@
 // api/ler-estoque.js
 
-const { google } = require('googleapis');
+const { google } = require("googleapis");
 
 // As variáveis de ambiente (process.env.NOME) serão configuradas na Vercel.
 // Elas contêm o ID da planilha, e-mail e chave privada da sua conta de serviço.
 const SPREADSHEET_ID = process.env.GOOGLE_SHEET_ID; 
 const GOOGLE_CLIENT_EMAIL = process.env.GOOGLE_CLIENT_EMAIL; 
 // A chave privada vem com '\n' (quebras de linha). Substituímos por quebras de linha reais.
-const GOOGLE_PRIVATE_KEY = process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'); 
+const GOOGLE_PRIVATE_KEY = Buffer.from(process.env.GOOGLE_PRIVATE_KEY, 'base64').toString('ascii'); 
 
 module.exports = async (req, res) => {
     if (req.method !== 'GET') {
@@ -67,3 +67,4 @@ module.exports = async (req, res) => {
         res.status(500).json({ message: 'Erro ao carregar o estoque do Google Sheets.', error: errorMessage });
     }
 };
+
