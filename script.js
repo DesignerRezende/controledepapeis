@@ -1,16 +1,11 @@
 // --- VARIÁVEIS GLOBAIS E CONFIGURAÇÕES ---
-const USUARIO_PADRAO = "designer";
-const SENHA_PADRAO = "1cafez!n"; // A senha CORRETA!
+// Usuário fixo, apenas a senha é pedida
+const SENHA_PADRAO = "1cafez!n";
 
-// Novas regras de estoque baixo baseadas em folhas por pacote
-const REGRAS_ESTOQUE_MINIMO_FOLHAS = {
-    100: 40, // Se o pacote tem 100 folhas, o mínimo é 40 folhas totais
-    50: 20,  // Se o pacote tem 50 folhas, o mínimo é 20 folhas totais
-    20: 8,   // Se o pacote tem 20 folhas, o mínimo é 8 folhas totais
-    10: 4    // Se o pacote tem 10 folhas, o mínimo é 4 folhas totais
-};
+// Regras de estoque mínimo baseadas no valor da coluna "Estoque Mínimo" do CSV
+// NÃO USAMOS MAIS REGRAS FIXAS POR FOLHAS/PACOTE NO JS, pois o CSV já tem o mínimo.
 
-let estoqueAtualTiposPapel = []; // Para armazenar os tipos de papel para o dropdown da baixa
+let estoqueAtualCompleto = []; // Para armazenar todos os dados do estoque para filtragem
 let tipoOperacaoAtual = null; // 'entrada' ou 'baixa' - para saber qual seção mostrar no pop-up
 
 // --- FUNÇÕES AUXILIARES ---
@@ -63,7 +58,7 @@ async function carregarEstoque() {
     }
 
     corpoTabela.innerHTML = ''; // Limpa a tabela antes de preencher
-    estoqueAtualTiposPapel = []; // Limpa os tipos de papel para recarregar
+    estoqueAtualCompleto = []; // Limpa os dados do estoque para recarregar
 
     try {
         const response = await fetch('/api/ler-estoque');
@@ -77,7 +72,7 @@ async function carregarEstoque() {
             if (dados.length === 0) {
                 const row = corpoTabela.insertRow();
                 const cell = row.insertCell(0);
-                cell.colSpan = 6; // Número de colunas da sua tabela
+                cell.colSpan = 8; // Número de colunas da sua tabela (agora 8)
                 cell.textContent = 'Nenhum item no estoque ainda.';
                 cell.style.textAlign = 'center';
                 return;
@@ -87,43 +82,49 @@ async function carregarEstoque() {
                 const colunas = linha.split(';'); // Divide a linha por ponto e vírgula
                 const row = corpoTabela.insertRow();
 
+                // Mapeia as colunas do CSV para as células da tabela HTML
+                // Ordem das colunas no seu CSV: Tipo de Papel;Gramatura;Marca;Tamanho;Qtd. Pacotes;Folhas/Pct.;Total Folhas;Estoque Mínimo
                 const tipoPapel = colunas[0] ? colunas[0].trim() : '';
-                const qtdPacotes = parseFloat(colunas[3]) || 0;
-                const folhasPct = parseFloat(colunas[4]) || 0; // Pega 'Folhas/Pct.'
-                const totalFolhas = parseFloat(colunas[5]) || 0; // Pega 'Total Folhas'
+                const gramatura = colunas[1] ? colunas[1].trim() : '';
+                const qtdPacotes = parseFloat(colunas[4]) || 0; // Qtd. Pacotes agora na coluna 4
+                const folhasPct = parseFloat(colunas[5]) || 0; // Folhas/Pct. agora na coluna 5
+                const totalFolhas = parseFloat(colunas[6]) || 0; // Total Folhas agora na coluna 6
+                const estoqueMinimo = parseFloat(colunas[7]) || 0; // Estoque Mínimo agora na coluna 7
 
                 row.insertCell(0).textContent = tipoPapel;
-                row.insertCell(1).textContent = colunas[1] ? colunas[1].trim() : '';
-                row.insertCell(2).textContent = colunas[2] ? colunas[2].trim() : '';
-                row.insertCell(3).textContent = colunas[3] ? colunas[3].trim() : '';
-                row.insertCell(4).textContent = colunas[4] ? colunas[4].trim() : '';
-                row.insertCell(5).textContent = colunas[5] ? colunas[5].trim() : '';
+                row.insertCell(1).textContent = gramatura; // Gramatura
+                row.insertCell(2).textContent = colunas[2] ? colunas[2].trim() : ''; // Marca
+                row.insertCell(3).textContent = colunas[3] ? colunas[3].trim() : ''; // Tamanho
+                row.insertCell(4).textContent = colunas[4] ? colunas[4].trim() : ''; // Qtd. Pacotes
+                row.insertCell(5).textContent = colunas[5] ? colunas[5].trim() : ''; // Folhas/Pct.
+                row.insertCell(6).textContent = colunas[6] ? colunas[6].trim() : ''; // Total Folhas
+                row.insertCell(7).textContent = colunas[7] ? colunas[7].trim() : ''; // Estoque Mínimo
 
-                // Adiciona o tipo de papel à lista para o dropdown, evitando duplicatas
-                if (tipoPapel && !estoqueAtualTiposPapel.includes(tipoPapel)) {
-                    estoqueAtualTiposPapel.push(tipoPapel);
-                }
+                // Armazena o item completo (objeto) para uso no dropdown de baixa
+                estoqueAtualCompleto.push({
+                    tipoPapel: tipoPapel,
+                    gramatura: gramatura,
+                    marca: colunas[2] ? colunas[2].trim() : '',
+                    tamanho: colunas[3] ? colunas[3].trim() : '',
+                    qtdPacotes: qtdPacotes,
+                    folhasPct: folhasPct,
+                    totalFolhas: totalFolhas,
+                    estoqueMinimo: estoqueMinimo
+                });
 
-                // *** NOVA LÓGICA DE ESTOQUE BAIXO ***
-                // Calcula o total de folhas para este item
-                // Se Folhas/Pct. for 0 (para itens de baixa, por exemplo), não aplica a regra de estoque baixo
-                if (folhasPct > 0) {
-                    const totalFolhasEmEstoque = qtdPacotes * folhasPct;
-                    const limiteMinimo = REGRAS_ESTOQUE_MINIMO_FOLHAS[folhasPct];
-
-                    if (limiteMinimo !== undefined && totalFolhasEmEstoque < limiteMinimo) {
-                        row.classList.add('estoque-baixo');
-                    }
+                // *** NOVA LÓGICA DE ESTOQUE BAIXO: Usa o Estoque Mínimo direto do CSV ***
+                if (totalFolhas < estoqueMinimo) {
+                    row.classList.add('estoque-baixo');
                 }
             });
 
-            popularDropdownTipoPapelBaixa(); // Chama para popular o dropdown após carregar o estoque
+            popularDropdownsBaixa(); // Chama para popular os dropdowns após carregar o estoque
         } else {
             const errorText = await response.text();
             console.error('Erro ao carregar estoque da API:', errorText);
             const row = corpoTabela.insertRow();
             const cell = row.insertCell(0);
-            cell.colSpan = 6;
+            cell.colSpan = 8;
             cell.textContent = 'Erro ao carregar o estoque.';
             cell.style.color = 'red';
         }
@@ -131,24 +132,52 @@ async function carregarEstoque() {
         console.error('Erro de conexão ao carregar estoque:', erro);
         const row = corpoTabela.insertRow();
         const cell = row.insertCell(0);
-        cell.colSpan = 6;
+        cell.colSpan = 8;
         cell.textContent = 'Problema de conexão ao carregar estoque.';
         cell.style.color = 'red';
     }
 }
 
-// --- FUNÇÃO: POPULAR DROPDOWN DE TIPO DE PAPEL PARA BAIXA ---
-function popularDropdownTipoPapelBaixa() {
-    const selectElement = document.getElementById('inputTipoPapelBaixa');
-    if (!selectElement) return;
+// --- FUNÇÃO: POPULAR DROPDOWNS PARA BAIXA ---
+function popularDropdownsBaixa() {
+    const selectTipoPapel = document.getElementById('inputTipoPapelBaixa');
+    const selectGramatura = document.getElementById('inputGramaturaBaixa');
 
-    selectElement.innerHTML = '<option value="">Selecione o Tipo de Papel</option>'; // Limpa e adiciona opção padrão
+    if (!selectTipoPapel || !selectGramatura) return;
 
-    estoqueAtualTiposPapel.sort().forEach(tipo => { // Ordena alfabeticamente
+    // Limpa e adiciona opção padrão para Tipo de Papel
+    selectTipoPapel.innerHTML = '<option value="">Selecione o Tipo de Papel</option>';
+    // Limpa e adiciona opção padrão para Gramatura (inicialmente vazia)
+    selectGramatura.innerHTML = '<option value="">Selecione a Gramatura</option>';
+
+    // Coleta tipos de papel únicos
+    const tiposUnicos = [...new Set(estoqueAtualCompleto.map(item => item.tipoPapel))].sort();
+    tiposUnicos.forEach(tipo => {
         const option = document.createElement('option');
         option.value = tipo;
         option.textContent = tipo;
-        selectElement.appendChild(option);
+        selectTipoPapel.appendChild(option);
+    });
+
+    // Event listener para quando o Tipo de Papel muda
+    selectTipoPapel.addEventListener('change', () => {
+        const tipoSelecionado = selectTipoPapel.value;
+        selectGramatura.innerHTML = '<option value="">Selecione a Gramatura</option>'; // Limpa ao mudar tipo
+
+        if (tipoSelecionado) {
+            // Filtra as gramaturas para o tipo de papel selecionado
+            const gramaturasUnicas = [...new Set(estoqueAtualCompleto
+                .filter(item => item.tipoPapel === tipoSelecionado)
+                .map(item => item.gramatura)
+            )].sort();
+
+            gramaturasUnicas.forEach(gramatura => {
+                const option = document.createElement('option');
+                option.value = gramatura;
+                option.textContent = gramatura;
+                selectGramatura.appendChild(option);
+            });
+        }
     });
 }
 
@@ -172,6 +201,7 @@ function calcularTotalFolhasEntrada() {
 
 function registrarEntrada() {
     const inputTipoPapel = document.getElementById('inputTipoPapelEntrada');
+    const inputGramatura = document.getElementById('inputGramaturaEntrada'); // Nova
     const inputMarca = document.getElementById('inputMarcaEntrada');
     const inputTamanho = document.getElementById('inputTamanhoEntrada');
     const inputQuantidade = document.getElementById('quantidadeEntrada');
@@ -179,23 +209,39 @@ function registrarEntrada() {
     const inputTotalFolhas = document.getElementById('inputTotalFolhasEntrada');
 
     const tipoPapel = inputTipoPapel ? inputTipoPapel.value.trim() : '';
+    const gramatura = inputGramatura ? inputGramatura.value.trim() : ''; // Nova
     const marca = inputMarca ? inputMarca.value.trim() : '';
     const tamanho = inputTamanho ? inputTamanho.value.trim() : '';
     const quantidade = parseFloat(inputQuantidade.value);
     const folhasPct = parseFloat(inputFolhasPct ? inputFolhasPct.value : '0');
     const totalFolhas = parseFloat(inputTotalFolhas ? inputTotalFolhas.value : '0');
 
-    if (!tipoPapel || isNaN(quantidade) || quantidade <= 0 || isNaN(folhasPct) || folhasPct <= 0 || isNaN(totalFolhas) || totalFolhas <= 0) {
-        alert('Por favor, preencha todos os campos de Tipo de Papel, Quantidade de Pacotes, Folhas/Pct. e Total Folhas para a entrada com valores válidos.');
+    // Vamos buscar o estoque mínimo para este item, se ele já existe.
+    // Se for uma entrada de um item novo, podemos deixar o estoque mínimo como vazio ou 0
+    let estoqueMinimoDoItem = 0; // Valor padrão
+    const itemExistente = estoqueAtualCompleto.find(item => 
+        item.tipoPapel === tipoPapel && item.gramatura === gramatura &&
+        item.marca === marca && item.tamanho === tamanho
+    );
+    if (itemExistente) {
+        estoqueMinimoDoItem = itemExistente.estoqueMinimo;
+    }
+    // OBS: Se você quiser que o usuário possa definir o estoque mínimo na entrada de um NOVO item,
+    // precisaria de um input para isso. Por enquanto, ele pega de um item existente ou é 0.
+
+    if (!tipoPapel || !gramatura || isNaN(quantidade) || quantidade <= 0 || isNaN(folhasPct) || folhasPct <= 0 || isNaN(totalFolhas) || totalFolhas <= 0) {
+        alert('Por favor, preencha todos os campos obrigatórios (Tipo de Papel, Gramatura, Qtd. Pacotes, Folhas/Pct., Total Folhas) para a entrada com valores válidos.');
         return;
     }
 
-    const linhaCSV = `<span class="math-inline">\{tipoPapel\};</span>{marca};<span class="math-inline">\{tamanho\};</span>{quantidade};<span class="math-inline">\{folhasPct\};</span>{totalFolhas}`;
+    // Nova ordem: Tipo de Papel;Gramatura;Marca;Tamanho;Qtd. Pacotes;Folhas por Pacote;Total de Folhas;Estoque Mínimo
+    const linhaCSV = `<span class="math-inline">\{tipoPapel\};</span>{gramatura};<span class="math-inline">\{marca\};</span>{tamanho};<span class="math-inline">\{</span>{quantidade}};<span class="math-inline">\{folhasPct\};</span>{totalFolhas};${estoqueMinimoDoItem}`;
 
     enviarParaAPI(linhaCSV);
 
     // Limpa os campos após o envio
     if (inputTipoPapel) inputTipoPapel.value = '';
+    if (inputGramatura) inputGramatura.value = '';
     if (inputMarca) inputMarca.value = '';
     if (inputTamanho) inputTamanho.value = '';
     inputQuantidade.value = '';
@@ -205,24 +251,30 @@ function registrarEntrada() {
 
 
 function registrarBaixa() {
-    const selectTipoPapel = document.getElementById('inputTipoPapelBaixa'); // Agora é um select
+    const selectTipoPapel = document.getElementById('inputTipoPapelBaixa');
+    const selectGramatura = document.getElementById('inputGramaturaBaixa'); // Nova
     const inputQuantidade = document.getElementById('quantidadeBaixa');
     const inputUsoBaixa = document.getElementById('inputUsoBaixa');
 
     const tipoPapel = selectTipoPapel ? selectTipoPapel.value.trim() : '';
+    const gramatura = selectGramatura ? selectGramatura.value.trim() : ''; // Nova
     const quantidade = parseFloat(inputQuantidade.value);
     const uso = inputUsoBaixa ? inputUsoBaixa.value.trim() : '';
 
-    if (!tipoPapel || isNaN(quantidade) || quantidade <= 0) {
-        alert('Por favor, selecione o Tipo de Papel e digite uma Quantidade válida de pacotes para a baixa.');
+    if (!tipoPapel || !gramatura || isNaN(quantidade) || quantidade <= 0) {
+        alert('Por favor, selecione o Tipo de Papel e a Gramatura e digite uma Quantidade válida de pacotes para a baixa.');
         return;
     }
 
-    const linhaCSV = `<span class="math-inline">\{tipoPapel\};</span>{uso};;;${-quantidade};;`; 
+    // Para baixa, registramos o valor NEGATIVO da quantidade.
+    // O campo 'Uso' é colocado na coluna de Marca para manter a contagem de colunas.
+    // Ordem: Tipo de Papel;Gramatura;Marca;Tamanho;Qtd. Pacotes;Folhas por Pacote;Total de Folhas;Estoque Mínimo
+    const linhaCSV = `<span class="math-inline">\{tipoPapel\};</span>{gramatura};<span class="math-inline">\{uso\};;;</span>{-quantidade};;`; 
 
     enviarParaAPI(linhaCSV);
 
     if (selectTipoPapel) selectTipoPapel.value = '';
+    if (selectGramatura) selectGramatura.value = '';
     inputQuantidade.value = '';
     if (inputUsoBaixa) inputUsoBaixa.value = '';
 }
@@ -258,14 +310,14 @@ async function baixarCSV() {
 // --- LÓGICA DE LOGIN E CONTROLE DE EXIBIÇÃO ---
 
 function handleLogin() {
-    const username = document.getElementById('usernameInput').value;
+    // Removido usernameInput
     const password = document.getElementById('passwordInput').value;
     const loginMessage = document.getElementById('loginMessage');
     const loginForm = document.getElementById('loginForm');
     const entradaSection = document.getElementById('entradaSection');
     const baixaSection = document.getElementById('baixaSection');
 
-    if (username === USUARIO_PADRAO && password === SENHA_PADRAO) {
+    if (password === SENHA_PADRAO) { // Apenas compara a senha
         loginForm.style.display = 'none'; // Esconde o formulário de login
         loginMessage.textContent = ''; // Limpa qualquer mensagem de erro
 
@@ -279,12 +331,11 @@ function handleLogin() {
         }
         alert('Login bem-sucedido! Preencha os detalhes da movimentação.');
 
-        // Limpa os campos de login após sucesso
-        document.getElementById('usernameInput').value = '';
+        // Limpa o campo de senha após sucesso
         document.getElementById('passwordInput').value = '';
 
     } else {
-        loginMessage.textContent = 'Usuário ou senha incorretos.';
+        loginMessage.textContent = 'Senha incorreta.';
     }
 }
 
@@ -303,9 +354,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Conecta o botão de login dentro do pop-up
     const loginButton = document.getElementById('loginButton');
+    const passwordInput = document.getElementById('passwordInput'); // Para detectar Enter na senha
+
     if (loginButton) {
         loginButton.addEventListener('click', handleLogin);
     }
+    if (passwordInput) {
+        // Permite login com Enter
+        passwordInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                handleLogin();
+            }
+        });
+    }
+
 
     // Conecta o botão de fechar o pop-up
     const closePopupButton = document.getElementById('closePopup');
@@ -317,7 +379,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('entradaSection').style.display = 'none';
             document.getElementById('baixaSection').style.display = 'none';
             document.getElementById('loginMessage').textContent = '';
-            document.getElementById('usernameInput').value = '';
+            // Não precisa limpar usernameInput, pois ele foi removido
             document.getElementById('passwordInput').value = '';
         });
     }
@@ -334,6 +396,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('loginForm').style.display = 'block'; // Mostra o formulário de login
             // Limpa campos para nova entrada
             document.getElementById('inputTipoPapelEntrada').value = '';
+            document.getElementById('inputGramaturaEntrada').value = ''; // Novo
             document.getElementById('inputMarcaEntrada').value = '';
             document.getElementById('inputTamanhoEntrada').value = '';
             document.getElementById('quantidadeEntrada').value = '';
@@ -347,9 +410,10 @@ document.addEventListener('DOMContentLoaded', () => {
             tipoOperacaoAtual = 'baixa'; // Define a operação atual
             document.getElementById('movimentacaoPopup').style.display = 'flex'; // Abre o pop-up
             document.getElementById('loginForm').style.display = 'block'; // Mostra o formulário de login
-            popularDropdownTipoPapelBaixa(); // Popula o dropdown ao abrir a baixa
+            popularDropdownsBaixa(); // Popula os dropdowns ao abrir a baixa
             // Limpa campos para nova baixa
-            document.getElementById('inputTipoPapelBaixa').value = ''; // Limpa o select
+            document.getElementById('inputTipoPapelBaixa').value = '';
+            document.getElementById('inputGramaturaBaixa').value = ''; // Novo
             document.getElementById('quantidadeBaixa').value = '';
             document.getElementById('inputUsoBaixa').value = '';
         });
