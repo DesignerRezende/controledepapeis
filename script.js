@@ -26,14 +26,17 @@ function getEstoqueMinimo(folhasPorPacote) {
     if (folhas === 50) return 20;
     if (folhas === 20) return 8;
     if (folhas === 10) return 4;
-    return 0;
+    return 0; // Padrão para outros valores
 }
 
 function aplicarRegrasDeEstoque(dados) {
     console.log("--- DIAGNÓSTICO: Aplicando Regras de Estoque ---");
     const dadosAtualizados = dados.map(item => {
+        // Pega o valor da coluna "Folhas por Pacote" para calcular
         const estoqueMinimoCalculado = getEstoqueMinimo(item['Folhas por Pacote']);
-        console.log(`Item: ${item['Tipo de Papel']}, Folhas/Pct: ${item['Folhas por Pacote']}, Mínimo Calculado: ${estoqueMinimoCalculado}`);
+        // Imprime no console para verificação
+        console.log(`Item: ${item['Tipo de Papel']}, Folhas/Pct: ${item['Folhas por Pacote']}, Mínimo Lido do CSV: ${item['Estoque Mínimo']}, Mínimo CALCULADO: ${estoqueMinimoCalculado}`);
+        // Substitui o valor do estoque mínimo do item pelo valor calculado
         item['Estoque Mínimo'] = estoqueMinimoCalculado;
         return item;
     });
@@ -41,12 +44,13 @@ function aplicarRegrasDeEstoque(dados) {
     return dadosAtualizados;
 }
 
+
 async function parseCSV(url) {
     try {
         const response = await fetch(url);
+        // Usar um cache-buster para garantir que o arquivo mais recente seja lido
         const text = await response.text();
         const lines = text.trim().split('\n');
-        // ATENÇÃO: Verifique se os nomes dos cabeçalhos no seu CSV são exatamente estes.
         const headers = lines[0].trim().split(';');
         const data = [];
         for (let i = 1; i < lines.length; i++) {
@@ -69,10 +73,10 @@ function renderizarTabela() {
     tabelaEstoque.innerHTML = '';
     estoquePapeis.forEach(item => {
         const row = document.createElement('tr');
-        // Adicionada a célula para a Marca
+        // ORDEM DAS CÉLULAS CORRIGIDA
         row.innerHTML = `
-            <td>${item['Marca'] || ''}</td>
             <td>${item['Tipo de Papel']}</td>
+            <td>${item['Marca'] || ''}</td>
             <td>${item['Tamanho']}</td>
             <td>${item['Quantidade de Pacotes']}</td>
             <td>${item['Folhas por Pacote']}</td>
@@ -92,7 +96,7 @@ function renderizarAlertaEstoqueBaixo() {
     } else {
         itensBaixos.forEach(item => {
             const li = document.createElement('li');
-            li.textContent = `Atenção: ${item['Marca']} ${item['Tipo de Papel']} (${item['Tamanho']}) está com apenas ${item['Total de Folhas']} folhas. (Mínimo: ${item['Estoque Mínimo']})`;
+            li.textContent = `Atenção: ${item['Tipo de Papel']} (${item['Marca']}) está com apenas ${item['Total de Folhas']} folhas. (Mínimo: ${item['Estoque Mínimo']})`;
             listaEstoqueBaixo.appendChild(li);
         });
     }
@@ -101,14 +105,14 @@ function renderizarAlertaEstoqueBaixo() {
 function popularSelectBaixa() {
     tipoPapelBaixaSelect.innerHTML = '<option value="" disabled selected>Selecione um papel</option>';
     estoquePapeis.forEach((item, index) => {
-        // Adicionada a Marca no texto da opção
-        const optionText = `${item['Marca']} - ${item['Tipo de Papel']} - ${item['Tamanho']}`;
+        // ORDEM CORRIGIDA NO TEXTO DA OPÇÃO
+        const optionText = `${item['Tipo de Papel']} (${item['Marca']}) - ${item['Tamanho']}`;
         const option = new Option(optionText, index);
         tipoPapelBaixaSelect.add(option);
     });
 }
 
-// --- Funções de Login e Fluxo do Modal ---
+// --- Funções de Login (sem sessionStorage) ---
 
 function mostrarViewLogin() {
     formBaixaView.classList.add('hidden');
@@ -143,6 +147,10 @@ function salvarDadosNoLocalStorage() {
 }
 
 function carregarDadosDoLocalStorage() {
+    // Limpa o localStorage antigo para garantir que os novos dados sejam lidos do CSV
+    // Esta é uma medida forte para garantir que dados antigos não interfiram.
+    // Pode ser removido depois do primeiro carregamento bem-sucedido.
+    // localStorage.clear(); 
     const estoqueSalvo = localStorage.getItem('estoquePapeis');
     return estoqueSalvo ? JSON.parse(estoqueSalvo) : null;
 }
@@ -155,7 +163,7 @@ function gerarCsvParaDownload() {
 
 openBaixaModalBtn.addEventListener('click', () => {
     baixaModal.classList.remove('hidden');
-    mostrarViewLogin(); // Sempre mostra o login primeiro
+    mostrarViewLogin(); // Sempre mostra o login
 });
 
 closeModalBtn.addEventListener('click', () => baixaModal.classList.add('hidden'));
@@ -185,13 +193,16 @@ formBaixa.addEventListener('submit', (e) => {
 
 // --- Inicialização da Aplicação ---
 document.addEventListener('DOMContentLoaded', async () => {
+    // Força a limpeza de dados antigos no primeiro carregamento para garantir que as novas regras sejam aplicadas
+    // Se você já carregou a página com o código antigo, pode ser necessário limpar manualmente.
+    localStorage.removeItem('estoquePapeis');
+
     let dadosCarregados = carregarDadosDoLocalStorage();
     if (!dadosCarregados) {
         try {
-            dadosCarregados = await parseCSV(CSV_FILE_PATH);
+            dadosCarregados = await parseCSV(CSV_FILE_PATH + '?v=' + new Date().getTime()); // Força o browser a não usar cache
         } catch (error) {
-            // Colspan atualizado para 6 colunas
-            tabelaEstoque.innerHTML = '<tr><td colspan="6">Erro ao carregar dados.</td></tr>';
+            tabelaEstoque.innerHTML = '<tr><td colspan="6">Erro ao carregar dados. Verifique o arquivo CSV.</td></tr>';
             return;
         }
     }
