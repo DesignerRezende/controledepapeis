@@ -12,16 +12,13 @@ module.exports = async (req, res) => {
 
     try {
         if (!fs.existsSync(filePath)) {
-            // Se o arquivo não existir, retorna apenas o cabeçalho como texto CSV
             const headers = "Tipo de Papel;Marca;Tamanho;Qtd. Pacotes;Folhas/Pct.;Total Folhas";
             res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-            return res.status(200).send(headers + '\n'); // Enviando o cabeçalho como texto puro
+            return res.status(200).send(headers + '\n');
         }
 
-        // Lê o conteúdo do arquivo CSV
         const data = await fs.promises.readFile(filePath, 'utf8');
 
-        // Retorna o conteúdo RAW (bruto) do CSV
         res.setHeader('Content-Type', 'text/csv; charset=utf-8');
         res.status(200).send(data);
 
