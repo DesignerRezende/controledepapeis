@@ -30,12 +30,12 @@ module.exports = async (req, res) => {
                 fileContent = "Tipo de Papel;Marca;Tamanho;Qtd. Pacotes;Folhas/Pct.;Total Folhas\n";
             }
         }
-        
+
         // 2. Anexar a nova linha. Adiciona uma quebra de linha ANTES da nova linha,
         // para garantir que cada entrada fique em uma nova linha, exceto a primeira.
         // Se já tiver conteúdo e não for apenas cabeçalho, adiciona '\n' antes.
         const contentToAdd = (fileContent.trim() !== '' && !shouldAddHeader ? '\n' : '') + novaLinhaCSV;
-        
+
         // Se estamos adicionando o cabeçalho, o 'appendFile' vai criar o arquivo e adicionar o cabeçalho + a primeira linha.
         // Se já existe, ele só anexa.
         await fs.promises.appendFile(filePath, contentToAdd, 'utf8');
