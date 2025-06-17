@@ -4,6 +4,9 @@ const SENHA_PADRAO = "1cafez!n";
 // estoqueAtualCompleto agora armazenará todos os dados de cada item, incluindo gramatura e estoque mínimo
 let estoqueAtualCompleto = [];
 
+// Variável para guardar qual operação o usuário clicou (entrada ou baixa)
+let tipoOperacaoAposLogin = null; 
+
 // --- FUNÇÕES AUXILIARES ---
 
 function formatarData(data) {
@@ -31,6 +34,15 @@ async function enviarParaAPI(linhaCSVCompleta) {
             console.log('Dados enviados com sucesso:', resultado);
             // REMOVIDO: alert('Sucesso: ' + resultado.message);
             carregarEstoque(); // Atualiza a tabela após a operação
+
+            // Fecha o pop-up e reseta para o estado de login
+            document.getElementById('loginMovimentacaoPopup').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block'; // Mostra o formulário de login novamente
+            document.getElementById('entradaSection').style.display = 'none';
+            document.getElementById('baixaSection').style.display = 'none';
+            document.getElementById('passwordInput').value = ''; // Limpa a senha
+            document.getElementById('loginMessage').textContent = ''; // Limpa mensagem de erro
+
         } else {
             const errorText = await response.text(); // Pega a resposta como texto
             alert('Erro: ' + errorText);
@@ -112,7 +124,9 @@ async function carregarEstoque() {
                 }
             });
 
-            // Nao popularDropdownsBaixa aqui, pois só será popular ao abrir o pop-up
+            // Popula os dropdowns ao carregar, mas eles só serão usados quando o pop-up de baixa abrir
+            popularDropdownsBaixa(); 
+
         } else {
             const errorText = await response.text();
             console.error('Erro ao carregar estoque da API:', errorText);
@@ -312,31 +326,32 @@ async function baixarCSV() {
 
 // --- LÓGICA DE LOGIN E CONTROLE DE EXIBIÇÃO ---
 
-// Tipo de operação atual (entrada ou baixa) para o pop-up de login
-let operacaoParaLogin = null; 
-
 function handleLogin() {
     const password = document.getElementById('passwordInput').value;
     const loginMessage = document.getElementById('loginMessage');
-    const loginPopup = document.getElementById('loginPopup');
-    const movimentacaoSection = document.getElementById('movimentacaoSection');
+    const loginForm = document.getElementById('loginForm');
+    const entradaSection = document.getElementById('entradaSection');
+    const baixaSection = document.getElementById('baixaSection');
+    const loginMovimentacaoPopup = document.getElementById('loginMovimentacaoPopup');
+
 
     if (password === SENHA_PADRAO) {
-        loginPopup.style.display = 'none'; // Esconde o pop-up de login
-        movimentacaoSection.style.display = 'block'; // Mostra a seção de movimentação
+        loginForm.style.display = 'none'; // Esconde o formulário de login
         loginMessage.textContent = ''; // Limpa qualquer mensagem de erro
+
+        // Mostra a seção de movimentação correta com base na operação clicada
+        if (tipoOperacaoAposLogin === 'entrada') {
+            entradaSection.style.display = 'block';
+            baixaSection.style.display = 'none';
+        } else if (tipoOperacaoAposLogin === 'baixa') {
+            baixaSection.style.display = 'block';
+            entradaSection.style.display = 'none';
+            popularDropdownsBaixa(); // Popula dropdowns para baixa
+        }
+        // Não há alert de sucesso de login
 
         // Limpa o campo de senha após sucesso
         document.getElementById('passwordInput').value = '';
-
-        // Se a operação foi de entrada ou baixa, executa a função correspondente
-        if (operacaoParaLogin === 'entrada') {
-            // Não precisa chamar registrarEntrada aqui, o botão "Dar Entrada" já está linkado
-            // A seção de movimentação é que vai aparecer
-        } else if (operacaoParaLogin === 'baixa') {
-            popularDropdownsBaixa(); // Garante que dropdowns estejam populados para baixa
-        }
-        alert('Login bem-sucedido! Preencha os detalhes da movimentação abaixo.');
 
     } else {
         loginMessage.textContent = 'Senha incorreta.';
@@ -350,8 +365,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Carrega a tabela assim que a página é carregada
     carregarEstoque();
 
-    // Esconder a seção de movimentação no início (o CSS já faz isso)
-    document.getElementById('movimentacaoSection').style.display = 'none';
+    // Esconder o pop-up de login/movimentação no início
+    document.getElementById('loginMovimentacaoPopup').style.display = 'none';
 
     // Conecta o botão de login dentro do pop-up
     const loginButton = document.getElementById('loginButton');
@@ -377,55 +392,61 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Conecta o botão de fechar o pop-up de login
-    const closeLoginPopup = document.getElementById('closePopup');
-    if (closeLoginPopup) {
-        closeLoginPopup.addEventListener('click', () => {
-            document.getElementById('loginPopup').style.display = 'none';
-            document.getElementById('passwordInput').value = ''; // Limpa a senha
-            document.getElementById('loginMessage').textContent = ''; // Limpa mensagem de erro
-            // Esconde a seção de movimentação se o pop-up for fechado sem login
-            document.getElementById('movimentacaoSection').style.display = 'none';
-             // Garante que o ícone do olhinho volte para 'eye' se a senha for escondida
+    // Conecta o botão de fechar o pop-up
+    const closePopupButton = document.getElementById('closePopup');
+    if (closePopupButton) {
+        closePopupButton.addEventListener('click', () => {
+            document.getElementById('loginMovimentacaoPopup').style.display = 'none';
+
+            // Reseta o estado do pop-up para a próxima vez que for aberto
+            document.getElementById('loginForm').style.display = 'block'; // Mostra o form de login
+            document.getElementById('entradaSection').style.display = 'none'; // Esconde entrada
+            document.getElementById('baixaSection').style.display = 'none'; // Esconde baixa
+
+            document.getElementById('passwordInput').value = ''; // Limpa senha
+            document.getElementById('loginMessage').textContent = ''; // Limpa mensagem
+
+            // Garante que o olhinho volte ao normal
             togglePassword.querySelector('i').classList.remove('fa-eye-slash');
             togglePassword.querySelector('i').classList.add('fa-eye');
             passwordInput.setAttribute('type', 'password'); // Esconde a senha novamente
         });
     }
 
-    // Conecta os botões "Dar Entrada" e "Dar Baixa" que ABREM o pop-up de login
+    // Conecta os botões que ABREM o pop-up de login
     const btnAbrirEntrada = document.getElementById('btnAbrirEntrada');
     const btnAbrirBaixa = document.getElementById('btnAbrirBaixa');
 
     if (btnAbrirEntrada) {
         btnAbrirEntrada.addEventListener('click', () => {
-            operacaoParaLogin = 'entrada'; // Define a operação para o login
-            document.getElementById('loginPopup').style.display = 'flex'; // Abre o pop-up de login
-            document.getElementById('passwordInput').focus(); // Foca no campo da senha
-        });
-    }
-    if (btnAbrirBaixa) {
-        btnAbrirBaixa.addEventListener('click', () => {
-            operacaoParaLogin = 'baixa'; // Define a operação para o login
-            document.getElementById('loginPopup').style.display = 'flex'; // Abre o pop-up de login
-            document.getElementById('passwordInput').focus(); // Foca no campo da senha
+            tipoOperacaoAposLogin = 'entrada'; // Define a operação
+            document.getElementById('loginMovimentacaoPopup').style.display = 'flex'; // Abre o pop-up
+            document.getElementById('passwordInput').focus(); // Foca na senha
         });
     }
 
-    // Conecta os botões de confirmar entrada/baixa (APÓS O LOGIN)
-    const btnEntradaConfirmar = document.getElementById('btnEntrada'); // Usando o ID original
-    const btnBaixaConfirmar = document.getElementById('btnBaixa'); // Usando o ID original
+    if (btnAbrirBaixa) {
+        btnAbrirBaixa.addEventListener('click', () => {
+            tipoOperacaoAposLogin = 'baixa'; // Define a operação
+            document.getElementById('loginMovimentacaoPopup').style.display = 'flex'; // Abre o pop-up
+            document.getElementById('passwordInput').focus(); // Foca na senha
+        });
+    }
+
+    // Conecta os botões de CONFIRMAR dentro das seções de entrada/baixa
+    const btnEntradaConfirmar = document.getElementById('btnEntradaConfirmar');
+    const btnBaixaConfirmar = document.getElementById('btnBaixaConfirmar');
     const btnDownloadCSV = document.getElementById('btnDownloadCSV');
 
     if (btnEntradaConfirmar) {
         btnEntradaConfirmar.addEventListener('click', registrarEntrada);
     } else {
-        console.error("Botão 'btnEntrada' não encontrado!");
+        console.error("Botão 'btnEntradaConfirmar' não encontrado!");
     }
     if (btnBaixaConfirmar) {
         btnBaixaConfirmar.addEventListener('click', registrarBaixa);
     } else {
-        console.error("Botão 'btnBaixa' não encontrado!");
+        console.error("Botão 'btnBaixaConfirmar' não encontrado!");
     }
     if (btnDownloadCSV) {
         btnDownloadCSV.addEventListener('click', baixarCSV);
