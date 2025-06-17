@@ -14,7 +14,6 @@
         <div class="popup-content">
             <span class="close-button" id="closePopup">&times;</span> <div id="loginForm">
                 <h2>Login para Acessar</h2>
-                <input type="text" id="usernameInput" placeholder="Usuário">
                 <input type="password" id="passwordInput" placeholder="Senha">
                 <button id="loginButton">Entrar</button>
                 <p id="loginMessage" style="color: red;"></p>
@@ -23,17 +22,21 @@
             <div id="entradaSection" class="movimentacao-inner-section">
                 <h3>Registrar Entrada</h3>
                 <input type="text" id="inputTipoPapelEntrada" placeholder="Tipo de Papel (ex: Couché)">
-                <input type="text" id="inputMarcaEntrada" placeholder="Marca (ex: Suzano)">
+                <input type="text" id="inputGramaturaEntrada" placeholder="Gramatura (ex: 180g/m²)"> <input type="text" id="inputMarcaEntrada" placeholder="Marca (ex: Suzano)">
                 <input type="text" id="inputTamanhoEntrada" placeholder="Tamanho (ex: A4)">
                 <input type="number" id="quantidadeEntrada" placeholder="Qtd. Pacotes (ex: 10)" min="1">
                 <input type="number" id="inputFolhasPctEntrada" placeholder="Folhas/Pct. (ex: 500)" min="1">
-                <input type="number" id="inputTotalFolhasEntrada" placeholder="Total Folhas (Automático)" readonly> <button id="btnEntradaConfirmar" class="acao-button">Confirmar Entrada</button>
+                <input type="number" id="inputTotalFolhasEntrada" placeholder="Total Folhas (Automático)" readonly>
+                <button id="btnEntradaConfirmar" class="acao-button">Confirmar Entrada</button>
             </div>
 
             <div id="baixaSection" class="movimentacao-inner-section">
                 <h3>Registrar Baixa</h3>
-                <select id="inputTipoPapelBaixa"> <option value="">Selecione o Tipo de Papel</option>
-                    </select>
+                <select id="inputTipoPapelBaixa">
+                    <option value="">Selecione o Tipo de Papel</option>
+                </select>
+                <select id="inputGramaturaBaixa"> <option value="">Selecione a Gramatura</option>
+                </select>
                 <input type="number" id="quantidadeBaixa" placeholder="Qtd. Pacotes (para baixa)" min="1">
                 <input type="text" id="inputUsoBaixa" placeholder="Uso (ex: Cartão de Visita)">
                 <button id="btnBaixaConfirmar" class="acao-button">Confirmar Baixa</button>
@@ -58,12 +61,12 @@
                     <thead>
                         <tr>
                             <th>Tipo de Papel</th>
-                            <th>Marca</th>
+                            <th>Gramatura</th> <th>Marca</th>
                             <th>Tamanho</th>
                             <th>Qtd. Pacotes</th>
                             <th>Folhas/Pct.</th>
                             <th>Total Folhas</th>
-                        </tr>
+                            <th>Estoque Mínimo</th> </tr>
                     </thead>
                     <tbody id="corpoTabelaEstoque">
                         </tbody>
@@ -74,7 +77,8 @@
         </div>
 
         <div class="card">
-            <h2>Registrar Movimentação</h2> <div class="movimentacao-botoes-login">
+            <h2>Registrar Movimentação</h2>
+            <div class="movimentacao-botoes-login">
                 <button id="btnAbrirEntrada" class="acao-button">Dar Entrada em Material</button>
                 <button id="btnAbrirBaixa" class="acao-button">Dar Baixa em Material</button>
             </div>
