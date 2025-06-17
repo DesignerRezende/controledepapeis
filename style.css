@@ -165,8 +165,8 @@ header {
     font-weight: 600; /* Montserrat SemiBold para dados da tabela (mais peso) */
 }
 
-/* Alinhamento Específico para a Coluna "Tipo de Papel" */
-#tabelaEstoque td:nth-child(1) { /* Seleciona a primeira coluna de dados (Tipo de Papel) */
+/* Alinhamento Específico para a Coluna "Tipo de Papel" (primeira coluna) */
+#tabelaEstoque td:nth-child(1) {
     text-align: left; /* Alinha à esquerda */
 }
 
