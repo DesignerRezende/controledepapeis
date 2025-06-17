@@ -36,31 +36,29 @@
         </section>
 
         <section id="acoes-estoque">
-            <button id="open-baixa-modal-btn">Dar Baixa em Material</button>
+            <button id="open-entrada-modal-btn" class="btn-acao">Entrada de Material</button>
+            <button id="open-baixa-modal-btn" class="btn-acao">Dar Baixa em Material</button>
         </section>
 
-        <section id="estoque-baixo">
-            <h2>Alerta de Estoque Baixo</h2>
-            <ul id="lista-estoque-baixo"></ul>
-        </section>
-    </main>
+        </main>
 
     <footer>
         <img src="logo-rezende.png" alt="Logo da Rezende">
     </footer>
 
-    <div id="baixa-modal" class="modal-overlay hidden">
+    <div id="estoque-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <div id="login-view">
                 <h2>Acesso Restrito</h2>
-                <p>Insira a senha para dar baixa no estoque.</p>
+                <p>Insira a senha para continuar.</p>
                 <form id="login-form">
-                    <label for="password">Senha ("designer"):</label>
+                    <label for="password">Senha:</label>
                     <input type="password" id="password" required>
                     <button type="submit">Entrar</button>
                 </form>
                 <p id="login-error"></p>
             </div>
+
             <div id="form-baixa-view" class="hidden">
                 <h2>Dar Baixa em Material</h2>
                 <form id="form-baixa">
@@ -68,12 +66,23 @@
                     <select id="tipoPapelBaixa" required></select>
                     <label for="quantidadeBaixa">Quantidade de Folhas:</label>
                     <input type="number" id="quantidadeBaixa" min="1" required>
-                    <label for="finalidadeBaixa">Finalidade:</label>
-                    <input type="text" id="finalidadeBaixa" required>
                     <button type="submit">Registrar Baixa</button>
                 </form>
                 <p id="mensagem-baixa"></p>
             </div>
+
+            <div id="form-entrada-view" class="hidden">
+                <h2>Entrada de Material</h2>
+                <form id="form-entrada">
+                    <label for="tipoPapelEntrada">Papel:</label>
+                    <select id="tipoPapelEntrada" required></select>
+                    <label for="quantidadeEntrada">Quantidade de Folhas:</label>
+                    <input type="number" id="quantidadeEntrada" min="1" required>
+                    <button type="submit">Registrar Entrada</button>
+                </form>
+                <p id="mensagem-entrada"></p>
+            </div>
+
             <button id="close-modal-btn">Fechar</button>
         </div>
     </div>
