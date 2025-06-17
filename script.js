@@ -1,11 +1,8 @@
 // --- VARIÁVEIS GLOBAIS E CONFIGURAÇÕES ---
 const SENHA_PADRAO = "1cafez!n";
 
-// Regras de estoque mínimo baseadas no valor da coluna "Estoque Mínimo" do CSV
-// Apenas para referência, o valor real vem do CSV agora
-
-let estoqueAtualCompleto = []; // Para armazenar todos os dados do estoque para filtragem
-let tipoOperacaoAtual = null; // 'entrada' ou 'baixa' - para saber qual seção mostrar no pop-up
+// estoqueAtualCompleto agora armazenará todos os dados de cada item, incluindo gramatura e estoque mínimo
+let estoqueAtualCompleto = [];
 
 // --- FUNÇÕES AUXILIARES ---
 
@@ -34,9 +31,8 @@ async function enviarParaAPI(linhaCSVCompleta) {
             console.log('Dados enviados com sucesso:', resultado);
             // REMOVIDO: alert('Sucesso: ' + resultado.message);
             carregarEstoque(); // Atualiza a tabela após a operação
-            document.getElementById('movimentacaoPopup').style.display = 'none'; // Fecha o pop-up
         } else {
-            const errorText = await response.text();
+            const errorText = await response.text(); // Pega a resposta como texto
             alert('Erro: ' + errorText);
             console.error('Erro ao enviar dados para a API:', errorText);
         }
@@ -71,7 +67,7 @@ async function carregarEstoque() {
             if (dados.length === 0) {
                 const row = corpoTabela.insertRow();
                 const cell = row.insertCell(0);
-                cell.colSpan = 7; // Agora 7 colunas visíveis
+                cell.colSpan = 7; // Ajustado para 7 colunas visíveis
                 cell.textContent = 'Nenhum item no estoque ainda.';
                 cell.style.textAlign = 'center';
                 return;
@@ -85,9 +81,9 @@ async function carregarEstoque() {
                 // Ordem das colunas no seu CSV: Tipo de Papel;Gramatura;Marca;Tamanho;Qtd. Pacotes;Folhas/Pct.;Total Folhas;Estoque Mínimo
                 const tipoPapel = colunas[0] ? colunas[0].trim() : '';
                 const gramatura = colunas[1] ? colunas[1].trim() : '';
-                const qtdPacotes = parseFloat(colunas[4]) || 0; // Qtd. Pacotes na coluna 4
-                const totalFolhas = parseFloat(colunas[6]) || 0; // Total Folhas na coluna 6
-                const estoqueMinimo = parseFloat(colunas[7]) || 0; // Estoque Mínimo na coluna 7
+                const qtdPacotes = parseFloat(colunas[4]) || 0;
+                const totalFolhas = parseFloat(colunas[6]) || 0;
+                const estoqueMinimo = parseFloat(colunas[7]) || 0;
 
                 row.insertCell(0).textContent = tipoPapel;
                 row.insertCell(1).textContent = gramatura;
@@ -96,7 +92,7 @@ async function carregarEstoque() {
                 row.insertCell(4).textContent = colunas[4] ? colunas[4].trim() : ''; // Qtd. Pacotes
                 row.insertCell(5).textContent = colunas[5] ? colunas[5].trim() : ''; // Folhas/Pct.
                 row.insertCell(6).textContent = colunas[6] ? colunas[6].trim() : ''; // Total Folhas
-                // REMOVIDO: row.insertCell(7).textContent = colunas[7] ? colunas[7].trim() : ''; // Estoque Mínimo
+                // Não insere a coluna de Estoque Mínimo na tabela HTML (colSpan ajustado)
 
                 // Armazena o item completo (objeto) para uso no dropdown de baixa
                 estoqueAtualCompleto.push({
@@ -116,13 +112,13 @@ async function carregarEstoque() {
                 }
             });
 
-            popularDropdownsBaixa(); // Chama para popular os dropdowns após carregar o estoque
+            // Nao popularDropdownsBaixa aqui, pois só será popular ao abrir o pop-up
         } else {
             const errorText = await response.text();
             console.error('Erro ao carregar estoque da API:', errorText);
             const row = corpoTabela.insertRow();
             const cell = row.insertCell(0);
-            cell.colSpan = 7; // Agora 7 colunas visíveis
+            cell.colSpan = 7; // Ajustado para 7 colunas
             cell.textContent = 'Erro ao carregar o estoque.';
             cell.style.color = 'red';
         }
@@ -130,13 +126,14 @@ async function carregarEstoque() {
         console.error('Erro de conexão ao carregar estoque:', erro);
         const row = corpoTabela.insertRow();
         const cell = row.insertCell(0);
-        cell.colSpan = 7; // Agora 7 colunas visíveis
+        cell.colSpan = 7; // Ajustado para 7 colunas
         cell.textContent = 'Problema de conexão ao carregar estoque.';
         cell.style.color = 'red';
     }
 }
 
 // --- FUNÇÃO: POPULAR DROPDOWNS PARA BAIXA ---
+// Esta função é chamada SOMENTE quando o pop-up de baixa é aberto
 function popularDropdownsBaixa() {
     const selectTipoPapel = document.getElementById('inputTipoPapelBaixa');
     const selectGramatura = document.getElementById('inputGramaturaBaixa');
@@ -158,7 +155,8 @@ function popularDropdownsBaixa() {
     });
 
     // Event listener para quando o Tipo de Papel muda
-    selectTipoPapel.removeEventListener('change', handleTipoPapelBaixaChange); // Remove listener antigo para evitar duplicatas
+    // Remove listener antigo antes de adicionar um novo para evitar duplicatas
+    selectTipoPapel.removeEventListener('change', handleTipoPapelBaixaChange); 
     selectTipoPapel.addEventListener('change', handleTipoPapelBaixaChange);
 }
 
@@ -172,7 +170,7 @@ function handleTipoPapelBaixaChange() {
     if (tipoSelecionado) {
         // Filtra as gramaturas para o tipo de papel selecionado
         const gramaturasUnicas = [...new Set(estoqueAtualCompleto
-            .filter(item => item.tipoPapel === tipoSelecionado)
+            .filter(item => item.tipoPapel === tipoSelecionado && item.gramatura) // Filtra também por gramatura existente
             .map(item => item.gramatura)
         )].sort((a, b) => { // Ordena gramaturas numericamente (se forem números com "g/m²")
             const numA = parseFloat(a);
@@ -232,14 +230,7 @@ function registrarEntrada() {
     );
     if (itemExistente) {
         estoqueMinimoDoItem = itemExistente.estoqueMinimo;
-    } else {
-        // Se for um item completamente novo, você pode querer um valor padrão ou
-        // adicionar um campo para o usuário definir o mínimo. Por enquanto, 0.
-        // Poderíamos também usar as REGRAS_ESTOQUE_MINIMO_FOLHAS se aplicável aqui,
-        // mas o CSV já traz o mínimo agora.
-        // Para um item novo, se totalFolhas for baseado em Folhas/Pct, poderiamos usar:
-        // estoqueMinimoDoItem = REGRAS_ESTOQUE_MINIMO_FOLHAS[folhasPct] || 0;
-    }
+    } 
 
     if (!tipoPapel || !gramatura || isNaN(quantidade) || quantidade <= 0 || isNaN(folhasPct) || folhasPct <= 0 || isNaN(totalFolhas) || totalFolhas <= 0) {
         alert('Por favor, preencha todos os campos obrigatórios (Tipo de Papel, Gramatura, Qtd. Pacotes, Folhas/Pct., Total Folhas) para a entrada com valores válidos.');
@@ -321,28 +312,31 @@ async function baixarCSV() {
 
 // --- LÓGICA DE LOGIN E CONTROLE DE EXIBIÇÃO ---
 
+// Tipo de operação atual (entrada ou baixa) para o pop-up de login
+let operacaoParaLogin = null; 
+
 function handleLogin() {
     const password = document.getElementById('passwordInput').value;
     const loginMessage = document.getElementById('loginMessage');
-    const loginForm = document.getElementById('loginForm');
-    const entradaSection = document.getElementById('entradaSection');
-    const baixaSection = document.getElementById('baixaSection');
+    const loginPopup = document.getElementById('loginPopup');
+    const movimentacaoSection = document.getElementById('movimentacaoSection');
 
     if (password === SENHA_PADRAO) {
-        loginForm.style.display = 'none'; // Esconde o formulário de login
+        loginPopup.style.display = 'none'; // Esconde o pop-up de login
+        movimentacaoSection.style.display = 'block'; // Mostra a seção de movimentação
         loginMessage.textContent = ''; // Limpa qualquer mensagem de erro
 
-        // Mostra a seção de movimentação correta com base na operação clicada
-        if (tipoOperacaoAtual === 'entrada') {
-            entradaSection.style.display = 'block';
-            baixaSection.style.display = 'none';
-        } else if (tipoOperacaoAtual === 'baixa') {
-            baixaSection.style.display = 'block';
-            entradaSection.style.display = 'none';
-        }
-        // REMOVIDO: alert('Login bem-sucedido! Preencha os detalhes da movimentação.');
+        // Limpa o campo de senha após sucesso
+        document.getElementById('passwordInput').value = '';
 
-        document.getElementById('passwordInput').value = ''; // Limpa o campo de senha após sucesso
+        // Se a operação foi de entrada ou baixa, executa a função correspondente
+        if (operacaoParaLogin === 'entrada') {
+            // Não precisa chamar registrarEntrada aqui, o botão "Dar Entrada" já está linkado
+            // A seção de movimentação é que vai aparecer
+        } else if (operacaoParaLogin === 'baixa') {
+            popularDropdownsBaixa(); // Garante que dropdowns estejam populados para baixa
+        }
+        alert('Login bem-sucedido! Preencha os detalhes da movimentação abaixo.');
 
     } else {
         loginMessage.textContent = 'Senha incorreta.';
@@ -356,107 +350,82 @@ document.addEventListener('DOMContentLoaded', () => {
     // Carrega a tabela assim que a página é carregada
     carregarEstoque();
 
-    // Esconder as seções de movimentação dentro do pop-up e o próprio pop-up
-    document.getElementById('movimentacaoPopup').style.display = 'none';
-    document.getElementById('entradaSection').style.display = 'none';
-    document.getElementById('baixaSection').style.display = 'none';
-    document.getElementById('loginForm').style.display = 'block'; // Garante que o form de login seja visível no pop-up
+    // Esconder a seção de movimentação no início (o CSS já faz isso)
+    document.getElementById('movimentacaoSection').style.display = 'none';
 
     // Conecta o botão de login dentro do pop-up
     const loginButton = document.getElementById('loginButton');
-    const passwordInput = document.getElementById('passwordInput'); // Para detectar Enter na senha
-    const togglePassword = document.getElementById('togglePassword'); // Botão do olhinho
+    const passwordInput = document.getElementById('passwordInput');
+    const togglePassword = document.getElementById('togglePassword');
 
     if (loginButton) {
         loginButton.addEventListener('click', handleLogin);
     }
     if (passwordInput) {
-        // Permite login com Enter
         passwordInput.addEventListener('keypress', (event) => {
             if (event.key === 'Enter') {
                 handleLogin();
             }
         });
     }
-    // Lógica do Olhinho
     if (togglePassword) {
         togglePassword.addEventListener('click', () => {
             const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
             passwordInput.setAttribute('type', type);
-            // Alterna o ícone
             togglePassword.querySelector('i').classList.toggle('fa-eye');
             togglePassword.querySelector('i').classList.toggle('fa-eye-slash');
         });
     }
 
-
-    // Conecta o botão de fechar o pop-up
-    const closePopupButton = document.getElementById('closePopup');
-    if (closePopupButton) {
-        closePopupButton.addEventListener('click', () => {
-            document.getElementById('movimentacaoPopup').style.display = 'none';
-            // Reseta o estado do pop-up para a próxima vez que for aberto
-            document.getElementById('loginForm').style.display = 'block';
-            document.getElementById('entradaSection').style.display = 'none';
-            document.getElementById('baixaSection').style.display = 'none';
-            document.getElementById('loginMessage').textContent = '';
-            document.getElementById('passwordInput').value = '';
-            // Garante que o ícone do olhinho volte para 'eye' se a senha for escondida
+    // Conecta o botão de fechar o pop-up de login
+    const closeLoginPopup = document.getElementById('closePopup');
+    if (closeLoginPopup) {
+        closeLoginPopup.addEventListener('click', () => {
+            document.getElementById('loginPopup').style.display = 'none';
+            document.getElementById('passwordInput').value = ''; // Limpa a senha
+            document.getElementById('loginMessage').textContent = ''; // Limpa mensagem de erro
+            // Esconde a seção de movimentação se o pop-up for fechado sem login
+            document.getElementById('movimentacaoSection').style.display = 'none';
+             // Garante que o ícone do olhinho volte para 'eye' se a senha for escondida
             togglePassword.querySelector('i').classList.remove('fa-eye-slash');
             togglePassword.querySelector('i').classList.add('fa-eye');
             passwordInput.setAttribute('type', 'password'); // Esconde a senha novamente
         });
     }
 
-
-    // Conecta os botões que ABREM o pop-up de movimentação
+    // Conecta os botões "Dar Entrada" e "Dar Baixa" que ABREM o pop-up de login
     const btnAbrirEntrada = document.getElementById('btnAbrirEntrada');
     const btnAbrirBaixa = document.getElementById('btnAbrirBaixa');
 
     if (btnAbrirEntrada) {
         btnAbrirEntrada.addEventListener('click', () => {
-            tipoOperacaoAtual = 'entrada'; // Define a operação atual
-            document.getElementById('movimentacaoPopup').style.display = 'flex'; // Abre o pop-up
-            document.getElementById('loginForm').style.display = 'block'; // Mostra o formulário de login
-            // Limpa campos para nova entrada
-            document.getElementById('inputTipoPapelEntrada').value = '';
-            document.getElementById('inputGramaturaEntrada').value = '';
-            document.getElementById('inputMarcaEntrada').value = '';
-            document.getElementById('inputTamanhoEntrada').value = '';
-            document.getElementById('quantidadeEntrada').value = '';
-            document.getElementById('inputFolhasPctEntrada').value = '';
-            document.getElementById('inputTotalFolhasEntrada').value = '';
+            operacaoParaLogin = 'entrada'; // Define a operação para o login
+            document.getElementById('loginPopup').style.display = 'flex'; // Abre o pop-up de login
+            document.getElementById('passwordInput').focus(); // Foca no campo da senha
         });
     }
-
     if (btnAbrirBaixa) {
         btnAbrirBaixa.addEventListener('click', () => {
-            tipoOperacaoAtual = 'baixa'; // Define a operação atual
-            document.getElementById('movimentacaoPopup').style.display = 'flex'; // Abre o pop-up
-            document.getElementById('loginForm').style.display = 'block'; // Mostra o formulário de login
-            popularDropdownsBaixa(); // Popula os dropdowns ao abrir a baixa
-            // Limpa campos para nova baixa
-            document.getElementById('inputTipoPapelBaixa').value = '';
-            document.getElementById('inputGramaturaBaixa').value = '';
-            document.getElementById('quantidadeBaixa').value = '';
-            document.getElementById('inputUsoBaixa').value = '';
+            operacaoParaLogin = 'baixa'; // Define a operação para o login
+            document.getElementById('loginPopup').style.display = 'flex'; // Abre o pop-up de login
+            document.getElementById('passwordInput').focus(); // Foca no campo da senha
         });
     }
 
-    // Conecta os botões REAIS de confirmar entrada/baixa (dentro do pop-up)
-    const btnEntradaConfirmar = document.getElementById('btnEntradaConfirmar');
-    const btnBaixaConfirmar = document.getElementById('btnBaixaConfirmar');
+    // Conecta os botões de confirmar entrada/baixa (APÓS O LOGIN)
+    const btnEntradaConfirmar = document.getElementById('btnEntrada'); // Usando o ID original
+    const btnBaixaConfirmar = document.getElementById('btnBaixa'); // Usando o ID original
     const btnDownloadCSV = document.getElementById('btnDownloadCSV');
 
     if (btnEntradaConfirmar) {
         btnEntradaConfirmar.addEventListener('click', registrarEntrada);
     } else {
-        console.error("Botão 'btnEntradaConfirmar' não encontrado!");
+        console.error("Botão 'btnEntrada' não encontrado!");
     }
     if (btnBaixaConfirmar) {
         btnBaixaConfirmar.addEventListener('click', registrarBaixa);
     } else {
-        console.error("Botão 'btnBaixaConfirmar' não encontrado!");
+        console.error("Botão 'btnBaixa' não encontrado!");
     }
     if (btnDownloadCSV) {
         btnDownloadCSV.addEventListener('click', baixarCSV);
