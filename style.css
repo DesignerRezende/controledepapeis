@@ -190,3 +190,65 @@ footer {
     background-color: #f8d7da; /* Vermelho claro */
     color: #721c24; /* Vermelho escuro */
 }
+/* --- ESTILOS ADICIONAIS (JUNHO 2025) --- */
+
+/* Alinha a primeira coluna (Tipo de Papel) à esquerda */
+#estoque-atual th:first-child,
+#estoque-atual td:first-child {
+    text-align: left;
+    padding-left: 10px; /* Adiciona um respiro à esquerda */
+}
+
+/* --- Classe para ocultar elementos --- */
+.hidden {
+    display: none !important;
+}
+
+/* --- Estilos do Modal de Login --- */
+.modal-overlay {
+    position: fixed; /* Fica fixo na tela */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Fundo escuro semitransparente */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Garante que fique sobre todos os outros elementos */
+}
+
+.modal-content {
+    background-color: var(--cor-branco);
+    padding: 25px 30px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    color: var(--cor-azul-principal);
+}
+
+#login-error {
+    color: var(--cor-vermelho-alerta);
+    font-weight: 600;
+    margin-top: 10px;
+    min-height: 20px;
+}
+
+#close-modal-btn {
+    background-color: #6c757d; /* Cinza */
+    margin-top: 10px;
+}
+#close-modal-btn:hover {
+    background-color: #5a6268;
+}
+
+#open-login-btn {
+    display: block;
+    margin: 20px auto; /* Centraliza o botão */
+}
