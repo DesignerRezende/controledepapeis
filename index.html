@@ -3,89 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estoque de Papéis dos Designers</title>
-    <link rel="icon" type="image/png" href="favicon.png">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Gerenciador de Estoque de Papéis</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="favicon.png" type="image/png">
 </head>
 <body>
-    <div class="logo-container top-logo">
-        <img src="logo-criacao.png" alt="Logo do Setor de Criação">
-    </div>
-
     <header>
+        <div class="logo-container">
+            <img src="logo-rezende.png" alt="Logo Rezende" class="logo">
+            <img src="logo-criacao.png" alt="Logo Criação" class="logo">
+        </div>
         <h1>Gerenciador de estoque de papéis do Design Gráfico</h1>
     </header>
 
     <main>
-        <section id="estoque-atual">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Tipo de Papel</th>
-                        <th>Marca</th>
-                        <th>Tamanho</th>
-                        <th>Qtd. Pacotes</th>
-                        <th>Folhas/Pct.</th>
-                        <th>Total Folhas</th>
-                    </tr>
-                </thead>
-                <tbody id="tabela-estoque"></tbody>
-            </table>
-            <button id="downloadCsvBtn">Baixar Estoque Atualizado (.csv)</button>
-        </section>
+        <div class="card">
+            <h2>Estoque Atual</h2>
+            <div class="tabela-container">
+                <table id="tabelaEstoque">
+                    <thead>
+                        <tr>
+                            <th>Tipo de Papel</th>
+                            <th>Marca</th>
+                            <th>Tamanho</th>
+                            <th>Qtd. Pacotes</th>
+                            <th>Folhas/Pct.</th>
+                            <th>Total Folhas</th>
+                        </tr>
+                    </thead>
+                    <tbody id="corpoTabelaEstoque">
+                        </tbody>
+                </table>
+            </div>
 
-        <section id="acoes-estoque">
-            <button id="open-entrada-modal-btn" class="btn-acao">Dar Entrada em Material</button>
-            <button id="open-baixa-modal-btn" class="btn-acao">Dar Baixa em Material</button>
-        </section>
+            <button id="btnDownloadCSV" class="acao-button">Baixar Estoque Atualizado (.csv)</button>
+        </div>
 
-        </main>
+        <div class="card">
+            <h2>Registrar Movimentação</h2>
+
+            <div class="movimentacao-container">
+                <div class="entrada-baixa">
+                    <h3>Registrar Entrada</h3>
+                    <input type="text" id="inputTipoPapelEntrada" placeholder="Tipo de Papel (ex: Couché)">
+                    <input type="text" id="inputMarcaEntrada" placeholder="Marca (ex: Suzano)">
+                    <input type="text" id="inputTamanhoEntrada" placeholder="Tamanho (ex: A4)">
+                    <input type="number" id="quantidadeEntrada" placeholder="Qtd. Pacotes (ex: 10)" min="1">
+                    <input type="number" id="inputFolhasPctEntrada" placeholder="Folhas/Pct. (ex: 500)" min="1">
+                    <input type="number" id="inputTotalFolhasEntrada" placeholder="Total Folhas (calculado ou manual)" min="0">
+                    <button id="btnEntrada" class="acao-button">Dar Entrada em Material</button>
+                </div>
+
+                <div class="entrada-baixa">
+                    <h3>Registrar Baixa</h3>
+                    <input type="text" id="inputTipoPapelBaixa" placeholder="Tipo de Papel (para baixa)">
+                    <input type="number" id="quantidadeBaixa" placeholder="Qtd. Pacotes (para baixa)" min="1">
+                    <button id="btnBaixa" class="acao-button">Dar Baixa em Material</button>
+                </div>
+            </div>
+        </div>
+    </main>
 
     <footer>
-        <img src="logo-rezende.png" alt="Logo da Rezende">
+        <img src="logo-rezende.png" alt="Logo Rezende" class="logo-footer">
     </footer>
-
-    <div id="estoque-modal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <div id="login-view">
-                <h2>Acesso Restrito</h2>
-                <p>Insira a senha para continuar.</p>
-                <form id="login-form">
-                    <label for="password">Senha:</label>
-                    <input type="password" id="password" required>
-                    <button type="submit">Entrar</button>
-                </form>
-                <p id="login-error"></p>
-            </div>
-
-            <div id="form-baixa-view" class="hidden">
-                <h2>Dar Baixa em Material</h2>
-                <form id="form-baixa">
-                    <label for="tipoPapelBaixa">Papel:</label>
-                    <select id="tipoPapelBaixa" required></select>
-                    <label for="quantidadeBaixa">Quantidade de Folhas:</label>
-                    <input type="number" id="quantidadeBaixa" min="1" required>
-                    <button type="submit">Registrar Baixa</button>
-                </form>
-                <p id="mensagem-baixa"></p>
-            </div>
-
-            <div id="form-entrada-view" class="hidden">
-                <h2>Dar Entrada em Material</h2>
-                <form id="form-entrada">
-                    <label for="tipoPapelEntrada">Papel:</label>
-                    <select id="tipoPapelEntrada" required></select>
-                    <label for="quantidadeEntrada">Quantidade de Folhas:</label>
-                    <input type="number" id="quantidadeEntrada" min="1" required>
-                    <button type="submit">Registrar Entrada</button>
-                </form>
-                <p id="mensagem-entrada"></p>
-            </div>
-
-            <button id="close-modal-btn">Fechar</button>
-        </div>
-    </div>
 
     <script src="script.js"></script>
 </body>
