@@ -3,12 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciador de Estoque de Papel</title>
+    <title>Estoque de Papéis dos Designers</title>
     <link rel="icon" type="image/png" href="favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div class="logo-container top-logo">
+        <img src="logo-criacao.png" alt="Logo do Setor de Criação">
+    </div>
+
     <header>
         <h1>Gerenciador de estoque de papéis do Design Gráfico</h1>
     </header>
@@ -26,23 +30,24 @@
                         <th>Total Folhas</th>
                     </tr>
                 </thead>
-                <tbody id="tabela-estoque">
-                    </tbody>
+                <tbody id="tabela-estoque"></tbody>
             </table>
             <button id="downloadCsvBtn">Baixar Estoque Atualizado (.csv)</button>
         </section>
 
         <section id="acoes-estoque">
-            <h2>Ações de Estoque</h2>
             <button id="open-baixa-modal-btn">Dar Baixa em Material</button>
         </section>
 
         <section id="estoque-baixo">
             <h2>Alerta de Estoque Baixo</h2>
-            <ul id="lista-estoque-baixo">
-                </ul>
+            <ul id="lista-estoque-baixo"></ul>
         </section>
     </main>
+
+    <footer>
+        <img src="logo-rezende.png" alt="Logo da Rezende">
+    </footer>
 
     <div id="baixa-modal" class="modal-overlay hidden">
         <div class="modal-content">
@@ -56,19 +61,15 @@
                 </form>
                 <p id="login-error"></p>
             </div>
-
             <div id="form-baixa-view" class="hidden">
                 <h2>Dar Baixa em Material</h2>
                 <form id="form-baixa">
                     <label for="tipoPapelBaixa">Papel:</label>
                     <select id="tipoPapelBaixa" required></select>
-
                     <label for="quantidadeBaixa">Quantidade de Folhas:</label>
                     <input type="number" id="quantidadeBaixa" min="1" required>
-
                     <label for="finalidadeBaixa">Finalidade:</label>
                     <input type="text" id="finalidadeBaixa" required>
-
                     <button type="submit">Registrar Baixa</button>
                 </form>
                 <p id="mensagem-baixa"></p>
