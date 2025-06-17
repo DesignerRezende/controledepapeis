@@ -7,14 +7,20 @@
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="favicon.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
 
     <div id="movimentacaoPopup" class="popup-overlay">
         <div class="popup-content">
-            <span class="close-button" id="closePopup">&times;</span> <div id="loginForm">
+            <span class="close-button" id="closePopup">&times;</span>
+
+            <div id="loginForm">
                 <h2>Login para Acessar</h2>
-                <input type="password" id="passwordInput" placeholder="Senha">
+                <div class="password-input-container"> <input type="password" id="passwordInput" placeholder="Senha">
+                    <span class="toggle-password" id="togglePassword">
+                        <i class="fas fa-eye"></i> </span>
+                </div>
                 <button id="loginButton">Entrar</button>
                 <p id="loginMessage" style="color: red;"></p>
             </div>
@@ -22,7 +28,8 @@
             <div id="entradaSection" class="movimentacao-inner-section">
                 <h3>Registrar Entrada</h3>
                 <input type="text" id="inputTipoPapelEntrada" placeholder="Tipo de Papel (ex: Couché)">
-                <input type="text" id="inputGramaturaEntrada" placeholder="Gramatura (ex: 180g/m²)"> <input type="text" id="inputMarcaEntrada" placeholder="Marca (ex: Suzano)">
+                <input type="text" id="inputGramaturaEntrada" placeholder="Gramatura (ex: 180g/m²)">
+                <input type="text" id="inputMarcaEntrada" placeholder="Marca (ex: Suzano)">
                 <input type="text" id="inputTamanhoEntrada" placeholder="Tamanho (ex: A4)">
                 <input type="number" id="quantidadeEntrada" placeholder="Qtd. Pacotes (ex: 10)" min="1">
                 <input type="number" id="inputFolhasPctEntrada" placeholder="Folhas/Pct. (ex: 500)" min="1">
@@ -35,7 +42,8 @@
                 <select id="inputTipoPapelBaixa">
                     <option value="">Selecione o Tipo de Papel</option>
                 </select>
-                <select id="inputGramaturaBaixa"> <option value="">Selecione a Gramatura</option>
+                <select id="inputGramaturaBaixa">
+                    <option value="">Selecione a Gramatura</option>
                 </select>
                 <input type="number" id="quantidadeBaixa" placeholder="Qtd. Pacotes (para baixa)" min="1">
                 <input type="text" id="inputUsoBaixa" placeholder="Uso (ex: Cartão de Visita)">
@@ -61,15 +69,16 @@
                     <thead>
                         <tr>
                             <th>Tipo de Papel</th>
-                            <th>Gramatura</th> <th>Marca</th>
+                            <th>Gramatura</th>
+                            <th>Marca</th>
                             <th>Tamanho</th>
                             <th>Qtd. Pacotes</th>
                             <th>Folhas/Pct.</th>
                             <th>Total Folhas</th>
-                            <th>Estoque Mínimo</th> </tr>
+                            </tr>
                     </thead>
                     <tbody id="corpoTabelaEstoque">
-                        </tbody>
+                    </tbody>
                 </table>
             </div>
 
