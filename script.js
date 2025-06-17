@@ -1,202 +1,111 @@
-// --- Variáveis Globais ---
-let estoquePapeis = [];
-let acaoAtual = ''; // Guarda a ação do usuário ('entrada' ou 'baixa')
-const CSV_FILE_PATH = 'Controle_de_Papeis.csv';
+// --- FUNÇÕES AUXILIARES (APENAS PARA O NOSSO CASO) ---
 
-// --- Elementos do DOM ---
-const tabelaEstoque = document.getElementById('tabela-estoque');
-const downloadCsvBtn = document.getElementById('downloadCsvBtn');
-const estoqueModal = document.getElementById('estoque-modal');
-const openEntradaModalBtn = document.getElementById('open-entrada-modal-btn');
-const openBaixaModalBtn = document.getElementById('open-baixa-modal-btn');
-const closeModalBtn = document.getElementById('close-modal-btn');
-// Views do Modal
-const loginView = document.getElementById('login-view');
-const formBaixaView = document.getElementById('form-baixa-view');
-const formEntradaView = document.getElementById('form-entrada-view');
-// Formulários
-const loginForm = document.getElementById('login-form');
-const passwordInput = document.getElementById('password');
-const loginError = document.getElementById('login-error');
-const formBaixa = document.getElementById('form-baixa');
-const tipoPapelBaixaSelect = document.getElementById('tipoPapelBaixa');
-const mensagemBaixa = document.getElementById('mensagem-baixa');
-const formEntrada = document.getElementById('form-entrada');
-const tipoPapelEntradaSelect = document.getElementById('tipoPapelEntrada');
-const mensagemEntrada = document.getElementById('mensagem-entrada');
-
-// --- Funções Principais ---
-
-function getEstoqueMinimo(folhasPorPacote) {
-    const folhas = parseInt(folhasPorPacote, 10);
-    if (folhas === 100) return 40;
-    if (folhas === 50) return 20;
-    if (folhas === 20) return 8;
-    if (folhas === 10) return 4;
-    return 0;
+// Função para formatar a data (dia/mês/ano)
+function formatarData(data) {
+    const d = new Date(data);
+    const dia = String(d.getDate()).padStart(2, '0');
+    const mes = String(d.getMonth() + 1).padStart(2, '0'); // Mês é 0-indexed
+    const ano = d.getFullYear();
+    return `<span class="math-inline">\{dia\}/</span>{mes}/${ano}`;
 }
 
-function aplicarRegrasDeEstoque(dados) {
-    return dados.map(item => {
-        item['Estoque Mínimo'] = getEstoqueMinimo(item['Folhas por Pacote']);
-        return item;
-    });
-}
+// --- FUNÇÃO PRINCIPAL PARA ENVIAR DADOS PARA NOSSA API ---
 
-async function parseCSV(url) {
+async function enviarParaAPI(tipo, quantidade, data) {
+    // Objeto com os dados que vamos enviar para o servidor
+    const dadosParaEnviar = {
+        tipo: tipo,
+        quantidade: quantidade,
+        data: data
+    };
+
     try {
-        const response = await fetch(url);
-        const text = await response.text();
-        const lines = text.trim().split('\n');
-        const headers = lines[0].trim().split(';');
-        const data = [];
-        for (let i = 1; i < lines.length; i++) {
-            if (!lines[i]) continue;
-            const values = lines[i].trim().split(';');
-            if (values.length === headers.length) {
-                const obj = {};
-                headers.forEach((header, index) => obj[header] = values[index]);
-                data.push(obj);
-            }
+        // Usa a função 'fetch' para fazer uma requisição para a nossa API
+        // O caminho '/api/atualizar-estoque' é o endereço da nossa função no Vercel
+        const response = await fetch('/api/atualizar-estoque', {
+            method: 'POST', // Dizemos que estamos ENVIANDO dados (POST)
+            headers: {
+                'Content-Type': 'application/json', // Dizemos que os dados são em formato JSON
+            },
+            body: JSON.stringify(dadosParaEnviar), // Transforma o objeto JavaScript em texto JSON
+        });
+
+        // Verifica se a resposta do servidor foi boa (código 200, 201, etc.)
+        if (response.ok) {
+            const resultado = await response.json(); // Transforma a resposta do servidor em objeto JavaScript
+            alert('Sucesso: ' + resultado.message); // Mostra a mensagem de sucesso para o usuário
+            console.log('Dados enviados com sucesso:', resultado);
+
+            // Opcional: Se quiser que a página recarregue após o sucesso (para simular uma atualização)
+            // window.location.reload();
+
+        } else {
+            // Se a resposta do servidor não foi boa (ex: erro 400, 500)
+            const erroDados = await response.json(); // Pega a mensagem de erro
+            alert('Erro: ' + erroDados.message); // Mostra a mensagem de erro para o usuário
+            console.error('Erro ao enviar dados para a API:', erroDados);
         }
-        return data;
-    } catch (error) {
-        throw error;
+    } catch (erro) {
+        // Se houver um problema de conexão ou algo inesperado
+        alert('Ocorreu um erro de conexão. Verifique sua internet ou tente novamente.');
+        console.error('Erro na requisição fetch:', erro);
     }
 }
 
-function renderizarTabela() {
-    tabelaEstoque.innerHTML = '';
-    estoquePapeis.forEach(item => {
-        const row = document.createElement('tr');
-        if (parseInt(item['Total de Folhas']) <= parseInt(item['Estoque Mínimo'])) {
-            row.classList.add('estoque-baixo-row');
-        }
-        row.innerHTML = `
-            <td>${item['Tipo de Papel']}</td>
-            <td>${item['Marca'] || ''}</td>
-            <td>${item['Tamanho']}</td>
-            <td>${item['Quantidade de Pacotes']}</td>
-            <td>${item['Folhas por Pacote']}</td>
-            <td>${item['Total de Folhas']}</td>
-        `;
-        tabelaEstoque.appendChild(row);
-    });
-}
+// --- FUNÇÕES DE ENTRADA/SAÍDA (QUE OS BOTÕES CHAMAM) ---
 
-function popularSelects() {
-    tipoPapelBaixaSelect.innerHTML = '<option value="" disabled selected>Selecione um papel</option>';
-    tipoPapelEntradaSelect.innerHTML = '<option value="" disabled selected>Selecione um papel</option>';
-    estoquePapeis.forEach((item, index) => {
-        const optionText = `${item['Tipo de Papel']} (${item['Marca']}) - ${item['Tamanho']}`;
-        const optionBaixa = new Option(optionText, index);
-        const optionEntrada = new Option(optionText, index);
-        tipoPapelBaixaSelect.add(optionBaixa);
-        tipoPapelEntradaSelect.add(optionEntrada);
-    });
-}
+// Função para registrar uma Entrada de material
+function registrarEntrada() {
+    const inputQuantidade = document.getElementById('quantidadeEntrada');
+    const quantidade = parseFloat(inputQuantidade.value); // Pega o número digitado
 
-// --- Funções de Login e Fluxo do Modal ---
-
-function mostrarView(viewToShow) {
-    loginView.classList.add('hidden');
-    formBaixaView.classList.add('hidden');
-    formEntradaView.classList.add('hidden');
-    viewToShow.classList.remove('hidden');
-}
-
-function handleLogin(e) {
-    e.preventDefault();
-    if (passwordInput.value === "1cafez!n") {
-        if (acaoAtual === 'baixa') {
-            mostrarView(formBaixaView);
-            popularSelects();
-        } else if (acaoAtual === 'entrada') {
-            mostrarView(formEntradaView);
-            popularSelects();
-        }
-    } else {
-        loginError.textContent = 'Senha incorreta. Tente novamente.';
-        passwordInput.focus();
+    // Validação simples
+    if (isNaN(quantidade) || quantidade <= 0) {
+        alert('Por favor, digite uma quantidade válida para a entrada.');
+        return; // Sai da função se a quantidade for inválida
     }
+
+    const dataAtual = new Date(); // Pega a data e hora de agora
+    const dataFormatada = formatarData(dataAtual); // Formata a data para o CSV
+
+    // Chama a função que envia os dados para a nossa API
+    enviarParaAPI('Entrada', quantidade, dataFormatada);
+
+    inputQuantidade.value = ''; // Limpa o campo de quantidade
 }
 
-// --- Funções de Persistência e Download ---
-function salvarDadosNoLocalStorage() {
-    localStorage.setItem('estoquePapeis', JSON.stringify(estoquePapeis));
-}
+// Função para registrar uma Baixa de material
+function registrarBaixa() {
+    const inputQuantidade = document.getElementById('quantidadeBaixa');
+    const quantidade = parseFloat(inputQuantidade.value); // Pega o número digitado
 
-function carregarDadosDoLocalStorage() {
-    const estoqueSalvo = localStorage.getItem('estoquePapeis');
-    return estoqueSalvo ? JSON.parse(estoqueSalvo) : null;
-}
-
-function gerarCsvParaDownload() { /* ... implementação existente ... */ }
-
-// --- Eventos ---
-openBaixaModalBtn.addEventListener('click', () => {
-    acaoAtual = 'baixa';
-    estoqueModal.classList.remove('hidden');
-    mostrarView(loginView);
-    passwordInput.focus();
-});
-
-openEntradaModalBtn.addEventListener('click', () => {
-    acaoAtual = 'entrada';
-    estoqueModal.classList.remove('hidden');
-    mostrarView(loginView);
-    passwordInput.focus();
-});
-
-closeModalBtn.addEventListener('click', () => estoqueModal.classList.add('hidden'));
-loginForm.addEventListener('submit', handleLogin);
-downloadCsvBtn.addEventListener('click', gerarCsvParaDownload);
-
-// Evento para o formulário de BAIXA
-formBaixa.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const itemIndex = tipoPapelBaixaSelect.value;
-    const quantidade = parseInt(document.getElementById('quantidadeBaixa').value, 10);
-    const item = estoquePapeis[itemIndex];
-    if (quantidade > parseInt(item['Total de Folhas'])) {
-        mensagemBaixa.innerHTML = 'Erro: Quantidade insuficiente em estoque.';
-        return;
+    // Validação simples
+    if (isNaN(quantidade) || quantidade <= 0) {
+        alert('Por favor, digite uma quantidade válida para a baixa.');
+        return; // Sai da função se a quantidade for inválida
     }
-    item['Total de Folhas'] = parseInt(item['Total de Folhas']) - quantidade;
-    item['Quantidade de Pacotes'] = (item['Total de Folhas'] / parseInt(item['Folhas por Pacote'])).toFixed(2);
-    salvarDadosNoLocalStorage();
-    renderizarTabela();
-    mensagemBaixa.innerHTML = 'Baixa registrada com sucesso!';
-    formBaixa.reset();
-    popularSelects();
-});
 
-// Evento para o formulário de ENTRADA
-formEntrada.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const itemIndex = tipoPapelEntradaSelect.value;
-    const quantidade = parseInt(document.getElementById('quantidadeEntrada').value, 10);
-    const item = estoquePapeis[itemIndex];
-    item['Total de Folhas'] = parseInt(item['Total de Folhas']) + quantidade;
-    item['Quantidade de Pacotes'] = (item['Total de Folhas'] / parseInt(item['Folhas por Pacote'])).toFixed(2);
-    salvarDadosNoLocalStorage();
-    renderizarTabela();
-    mensagemEntrada.innerHTML = 'Entrada registrada com sucesso!';
-    formEntrada.reset();
-    popularSelects();
-});
+    const dataAtual = new Date(); // Pega a data e hora de agora
+    const dataFormatada = formatarData(dataAtual); // Formata a data para o CSV
 
-// --- Inicialização da Aplicação ---
-document.addEventListener('DOMContentLoaded', async () => {
-    localStorage.removeItem('estoquePapeis');
-    let dadosCarregados;
-    try {
-        dadosCarregados = await parseCSV(CSV_FILE_PATH + '?v=' + new Date().getTime());
-    } catch (error) {
-        tabelaEstoque.innerHTML = `<tr><td colspan="6">Erro ao carregar dados.</td></tr>`;
-        return;
+    // Chama a função que envia os dados para a nossa API
+    enviarParaAPI('Baixa', quantidade, dataFormatada);
+
+    inputQuantidade.value = ''; // Limpa o campo de quantidade
+}
+
+// --- CONEXÃO DOS BOTÕES COM AS FUNÇÕES (Garanta que isso exista) ---
+
+// Este código garante que, quando os botões forem clicados, as funções acima serão chamadas.
+// Se você já tem algo parecido no seu script.js, mantenha ou substitua.
+document.addEventListener('DOMContentLoaded', () => {
+    const btnEntrada = document.getElementById('btnEntrada');
+    const btnBaixa = document.getElementById('btnBaixa');
+
+    if (btnEntrada) {
+        btnEntrada.addEventListener('click', registrarEntrada);
     }
-    estoquePapeis = aplicarRegrasDeEstoque(dadosCarregados);
-    salvarDadosNoLocalStorage();
-    renderizarTabela();
+    if (btnBaixa) {
+        btnBaixa.addEventListener('click', registrarBaixa);
+    }
 });
