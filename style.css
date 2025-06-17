@@ -1,304 +1,227 @@
-/* Cores Definidas */
-:root {
-    --cor-preto: #000000;
-    --cor-branco: #FFFFFF;
-    --cor-vermelho-alerta: #FF1A15;
-    --cor-azul-principal: #141B4D;
-    --cor-cinza-claro: #D9D9D9;
-}
-
+/* --- Estilos Gerais --- */
 body {
-    font-family: 'Montserrat', sans-serif; /* Aplica a fonte Montserrat */
+    font-family: 'Montserrat', sans-serif; /* Aplica Montserrat como fonte padrão */
     margin: 0;
-    padding: 20px;
-    background-color: var(--cor-cinza-claro); /* Cor de fundo */
-    color: var(--cor-preto); /* Cor do texto principal */
-    line-height: 1.6;
-}
-
-header {
-    background-color: var(--cor-azul-principal); /* Cor de fundo do cabeçalho */
-    color: var(--cor-branco); /* Cor do texto do cabeçalho */
-    padding: 15px 0;
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-h1 {
-    font-weight: 700; /* Bold */
-    margin: 0;
-}
-
-main {
-    max-width: 900px;
-    margin: 20px auto;
-    background-color: var(--cor-branco);
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-section {
-    margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid var(--cor-cinza-claro);
-}
-
-section:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-}
-
-h2 {
-    color: var(--cor-azul-principal);
-    text-align: center;
-    margin-bottom: 20px;
-    font-weight: 600; /* Semi-bold */
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-}
-
-table th, table td {
-    border: 1px solid #ddd; /* Pode manter um cinza mais claro para bordas de tabela */
-    padding: 10px;
-    text-align: left;
-    font-weight: 400; /* Regular */
-}
-
-table th {
-    background-color: var(--cor-cinza-claro); /* Fundo dos cabeçalhos da tabela */
-    font-weight: 600; /* Semi-bold */
-    color: var(--cor-preto);
-}
-
-button {
-    background-color: var(--cor-azul-principal);
-    color: var(--cor-branco);
-    padding: 10px 15px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1em;
-    margin-top: 10px;
-    font-weight: 500; /* Medium */
-    transition: background-color 0.3s ease; /* Transição suave no hover */
-}
-
-button:hover {
-    background-color: #1a2a6b; /* Um tom um pouco mais escuro para o hover do azul */
-}
-
-form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 15px;
-}
-
-form label {
-    font-weight: 500; /* Medium */
-    color: var(--cor-preto);
-}
-
-form input[type="number"],
-form input[type="text"],
-form select {
-    padding: 8px;
-    border: 1px solid var(--cor-cinza-claro);
-    border-radius: 4px;
-    width: calc(100% - 18px); /* Ajustar para padding/border */
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 400; /* Regular */
-    color: var(--cor-preto);
-}
-
-ul {
-    list-style: none;
     padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
 }
 
-ul li {
-    background-color: #f9f9f9; /* Um cinza bem clarinho para os itens da lista */
-    margin-bottom: 8px;
-    padding: 10px;
-    border-radius: 4px;
-    border: 1px solid #eee;
-    font-weight: 400; /* Regular */
+/* --- Novo Cabeçalho --- */
+header {
+    width: 100%;
+    background-color: #fff; /* Fundo branco para a seção da logo */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding-bottom: 10px; /* Espaço para separar da faixa */
 }
 
-#lista-estoque-baixo li {
-    color: var(--cor-vermelho-alerta); /* Texto vermelho para alertas de estoque baixo */
-    font-weight: 600; /* Semi-bold para destacar */
+.header-logo-top {
+    display: flex;
+    justify-content: center; /* Centraliza a logo horizontalmente */
+    padding: 15px 0; /* Espaçamento acima e abaixo da logo */
 }
 
-#mensagem-baixa {
-    margin-top: 10px;
-    font-weight: 600; /* Semi-bold */
-    color: var(--cor-azul-principal); /* Mensagens de sucesso */
+.logo-criacao-header {
+    max-width: 150px; /* Ajuste o tamanho da logo conforme necessário */
+    height: auto;
 }
 
-#mensagem-baixa.error {
-    color: var(--cor-vermelho-alerta); /* Mensagens de erro */
-}
-
-footer {
-    text-align: center;
-    margin-top: 40px;
-    padding: 20px;
-    border-top: 1px solid var(--cor-cinza-claro);
-    color: #666;
-    font-weight: 300; /* Light */
-}
-/* --- ESTILOS ADICIONAIS PARA A TABELA DE ESTOQUE --- */
-
-/* Centraliza o texto dos cabeçalhos e das células */
-#estoque-atual th,
-#estoque-atual td {
-    text-align: center;
-    vertical-align: middle; /* Alinha o texto verticalmente ao centro */
-}
-
-/* Deixa o texto das células em semibold */
-#estoque-atual td {
-    font-weight: 600; /* 600 corresponde a Semibold */
-}
-
-/* Ajusta a fonte do cabeçalho para evitar quebras */
-#estoque-atual th {
-    font-weight: 700; /* Bold para dar mais destaque ao cabeçalho */
-    font-size: 14px;  /* Tamanho de fonte um pouco menor para garantir o ajuste */
-    white-space: nowrap; /* Impede a quebra de linha no cabeçalho */
-}
-
-/* Melhora a aparência da mensagem de feedback */
-#mensagem-baixa {
-    text-align: center;
-    font-weight: 600;
-    margin-top: 15px;
-    padding: 10px;
-    border-radius: 5px;
-}
-#mensagem-baixa.success {
-    background-color: #d4edda; /* Verde claro */
-    color: #155724; /* Verde escuro */
-}
-#mensagem-baixa.error {
-    background-color: #f8d7da; /* Vermelho claro */
-    color: #721c24; /* Vermelho escuro */
-}
-/* --- ESTILOS ADICIONAIS (JUNHO 2025) --- */
-
-/* --- ESTILOS ADICIONAIS (AJUSTADOS) --- */
-
-/* Centraliza APENAS o TÍTULO da primeira coluna (herda o estilo geral do th) */
-#estoque-atual th {
+.header-band {
+    background-color: #002D62; /* Azul escuro para a faixa */
+    color: #fff;
+    padding: 15px 20px;
     text-align: center;
 }
 
-/* Alinha o CONTEÚDO (nome do papel) da primeira coluna à esquerda */
-#estoque-atual td:first-child {
-    text-align: left;
-    padding-left: 10px; /* Adiciona um respiro à esquerda */
+.header-band h1 {
+    margin: 0;
+    font-size: 2.2em; /* Tamanho do título */
+    font-weight: 700; /* Montserrat Bold para títulos */
 }
 
-/* --- Classe para ocultar elementos --- */
-.hidden {
-    display: none !important;
-}
-
-/* --- Estilos do Modal de Login --- */
-.modal-overlay {
-    position: fixed; /* Fica fixo na tela */
+/* --- Pop-up de Login --- */
+.popup-overlay {
+    display: none; /* Escondido por padrão, JavaScript o mostrará */
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.7); /* Fundo escuro semitransparente */
+    background-color: rgba(0, 0, 0, 0.7); /* Fundo escuro semi-transparente */
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000; /* Garante que fique sobre todos os outros elementos */
+    z-index: 1000; /* Garante que fique acima de outros elementos */
 }
 
-.modal-content {
-    background-color: var(--cor-branco);
-    padding: 25px 30px;
+.popup-content {
+    background-color: #fff;
+    padding: 30px;
     border-radius: 8px;
-    width: 90%;
-    max-width: 400px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     text-align: center;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    width: 300px; /* Largura do pop-up */
 }
 
-.modal-content h2 {
-    margin-top: 0;
-    color: var(--cor-azul-principal);
+.popup-content h2 {
+    color: #002D62;
+    margin-bottom: 20px;
+    font-weight: 600; /* Montserrat SemiBold */
 }
 
-#login-error {
-    color: var(--cor-vermelho-alerta);
+.popup-content input {
+    width: calc(100% - 20px); /* Ocupa quase toda a largura */
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+.popup-content button {
+    background-color: #002D62;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.1em;
     font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+.popup-content button:hover {
+    background-color: #003D82;
+}
+
+#loginMessage {
     margin-top: 10px;
-    min-height: 20px;
+    font-weight: 600;
 }
 
-#close-modal-btn {
-    background-color: #6c757d; /* Cinza */
-    margin-top: 10px;
-}
-#close-modal-btn:hover {
-    background-color: #5a6268;
-}
-
-#open-login-btn {
-    display: block;
-    margin: 20px auto; /* Centraliza o botão */
-}
-/* --- ESTILOS FINAIS (JUNHO 2025) --- */
-
-/* Estilo para a linha da tabela com estoque baixo */
-tr.estoque-baixo-row {
-    background-color: #f8d7da; /* Vermelho claro */
-    color: #721c24; /* Vermelho escuro */
-    font-weight: 700; /* Negrito para destacar */
+/* --- Estilos da Tabela --- */
+.tabela-container {
+    overflow-x: auto; /* Para rolagem em telas pequenas */
+    margin-top: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+    padding: 15px;
 }
 
-/* Centraliza a seção com o botão de dar baixa */
-#acoes-estoque {
+#tabelaEstoque {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    font-size: 0.95em;
+}
+
+#tabelaEstoque th, #tabelaEstoque td {
+    padding: 12px 8px;
+    border: 1px solid #ddd;
+    text-align: center; /* Centraliza o texto de todas as células */
+    font-family: 'Montserrat', sans-serif; /* Garante a fonte */
+}
+
+#tabelaEstoque th {
+    background-color: #f2f2f2;
+    font-weight: 700; /* Montserrat Bold para cabeçalhos da tabela */
+    color: #333;
+}
+
+#tabelaEstoque td {
+    font-weight: 500; /* Montserrat SemiBold para dados da tabela */
+}
+
+/* Alinhamento Específico para a Coluna "Tipo de Papel" */
+#tabelaEstoque td:nth-child(1) { /* Seleciona a primeira coluna de dados (Tipo de Papel) */
+    text-align: left; /* Alinha à esquerda */
+}
+
+/* Estilo para Linhas de Estoque Baixo */
+.estoque-baixo {
+    background-color: #ffe0e0; /* Cor de fundo suave para alerta */
+    color: #cc0000; /* Cor do texto em vermelho */
+    font-weight: 600; /* Deixa o texto mais evidente */
+}
+
+/* --- Estilos para cards, inputs e botões --- */
+.card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 25px;
+    margin-bottom: 20px;
+}
+
+h2, h3 {
+    color: #002D62;
     text-align: center;
-    padding: 10px 0 20px 0;
+    margin-top: 0;
+    font-weight: 700; /* Montserrat Bold para títulos h2, h3 */
 }
 
-/* Estilos para os containers das logos */
-.logo-container,
+.movimentacao-container {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap; /* Permite quebrar em linhas menores */
+    gap: 20px; /* Espaço entre as seções de entrada/baixa */
+}
+
+.entrada-baixa {
+    flex: 1; /* Permite que seções se expandam */
+    min-width: 300px; /* Largura mínima para evitar que fiquem muito apertadas */
+    padding: 20px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    text-align: center;
+}
+
+.entrada-baixa input {
+    width: calc(100% - 22px);
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.95em;
+    font-family: 'Montserrat', sans-serif; /* Garante a fonte nos inputs */
+}
+
+.acao-button {
+    background-color: #002D62;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+    margin-top: 10px; /* Espaço acima do botão */
+}
+
+.acao-button:hover {
+    background-color: #003D82;
+}
+
+/* Ocultar a seção de movimentação antes do login */
+#movimentacaoSection {
+    display: none;
+}
+
+/* Estilos para logos no footer (se você mantiver) */
 footer {
     text-align: center;
-    padding: 20px 0;
+    padding: 20px;
+    margin-top: 30px;
+    background-color: #f2f2f2;
+    color: #555;
+    font-size: 0.9em;
 }
 
-.top-logo {
-    background-color: var(--cor-branco);
-    padding-bottom: 0;
-}
-
-footer {
-    padding-top: 30px;
-    padding-bottom: 30px;
-}
-
-/* Define um tamanho máximo harmonioso para as logos */
-.logo-container img,
-footer img {
-    max-width: 180px; /* Ajuste este valor se necessário */
+.logo-footer {
+    max-width: 100px; /* Ajuste conforme necessário */
     height: auto;
-}
-/* Estilo para os botões de ação principais */
-.btn-acao {
-    margin: 0 10px; /* Adiciona espaço entre os botões */
-    padding: 12px 24px; /* Deixa os botões um pouco maiores */
-    font-size: 16px;
+    margin-top: 10px;
 }
