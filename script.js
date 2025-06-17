@@ -237,7 +237,6 @@ function registrarEntrada() {
     const totalFolhas = parseFloat(inputTotalFolhas ? inputTotalFolhas.value : '0');
 
     let estoqueMinimoDoItem = 0; // Valor padrão
-    // Busca o estoque mínimo para este item, se ele já existe na tabela carregada
     const itemExistente = estoqueAtualCompleto.find(item => 
         item.tipoPapel === tipoPapel && item.gramatura === gramatura &&
         item.marca === marca && item.tamanho === tamanho
@@ -246,12 +245,14 @@ function registrarEntrada() {
         estoqueMinimoDoItem = itemExistente.estoqueMinimo;
     } 
 
-    if (!tipoPapel || !gramatura || isNaN(quantidade) || quantidade <= 0 || isNaN(folhasPct) || folhasPct <= 0 || isNaN(totalFolhas) || totalFolhas <= 0) {
-        alert('Por favor, preencha todos os campos obrigatórios (Tipo de Papel, Gramatura, Qtd. Pacotes, Folhas/Pct., Total Folhas) para a entrada com valores válidos.');
+    // Adiciona validações para garantir que os números sejam válidos
+    if (!tipoPapel || !gramatura || !marca || !tamanho || isNaN(quantidade) || quantidade <= 0 || isNaN(folhasPct) || folhasPct <= 0 || isNaN(totalFolhas) || totalFolhas <= 0) {
+        alert('Por favor, preencha todos os campos obrigatórios (Tipo de Papel, Gramatura, Marca, Tamanho, Qtd. Pacotes, Folhas/Pct., Total Folhas) com valores válidos para a entrada.');
         return;
     }
 
     // Ordem: Tipo de Papel;Gramatura;Marca;Tamanho;Qtd. Pacotes;Folhas por Pacote;Total de Folhas;Estoque Mínimo
+    // Verifique se NÃO HÁ CHAVES DUPLAS AQUI: ${quantidade} e não ${${quantidade}}
     const linhaCSV = `<span class="math-inline">\{tipoPapel\};</span>{gramatura};<span class="math-inline">\{marca\};</span>{tamanho};<span class="math-inline">\{quantidade\};</span>{folhasPct};<span class="math-inline">\{totalFolhas\};</span>{estoqueMinimoDoItem}`;
 
     enviarParaAPI(linhaCSV);
