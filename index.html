@@ -4,15 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerenciador de Estoque de Papel</title>
-    
-    <link rel="icon" type="image/png" href="favicon.png"> 
-    
+    <link rel="icon" type="image/png" href="favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
-        <h1>Estoque de Papéis dos Designers</h1>
+        <h1>Gerenciador de estoque de papéis do Design Gráfico</h1>
     </header>
 
     <main>
@@ -20,6 +18,7 @@
             <table>
                 <thead>
                     <tr>
+                        <th>Marca</th>
                         <th>Tipo de Papel</th>
                         <th>Tamanho</th>
                         <th>Qtd. Pacotes</th>
@@ -61,9 +60,8 @@
             <div id="form-baixa-view" class="hidden">
                 <h2>Dar Baixa em Material</h2>
                 <form id="form-baixa">
-                    <label for="tipoPapelBaixa">Tipo de Papel:</label>
-                    <select id="tipoPapelBaixa" required>
-                        </select>
+                    <label for="tipoPapelBaixa">Papel:</label>
+                    <select id="tipoPapelBaixa" required></select>
 
                     <label for="quantidadeBaixa">Quantidade de Folhas:</label>
                     <input type="number" id="quantidadeBaixa" min="1" required>
@@ -75,7 +73,6 @@
                 </form>
                 <p id="mensagem-baixa"></p>
             </div>
-
             <button id="close-modal-btn">Fechar</button>
         </div>
     </div>
