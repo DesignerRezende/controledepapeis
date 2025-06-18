@@ -1,13 +1,12 @@
 // api/ler-estoque.js
 
 const { google } = require("googleapis");
-const credentials = require(path.resolve(__dirname, '../gerenciador-estoque-vercel-235b0a581d9d.json'));
-// Se o seu JSON estiver em outra pasta, ajuste o caminho. Ex: '../credentials/gerenciador-estoque-vercel-235b0a581d9d.json'
+const path = require('path'); // Módulo nativo do Node.js para lidar com caminhos de arquivo - ADICIONADO AQUI!
+const credentials = require(path.resolve(__dirname, '../gerenciador-estoque-vercel-235b0a581d9d.json')); // Carrega o JSON de credenciais
 
-// As variáveis de ambiente (process.env.NOME) serão configuradas na Vercel.
-// Elas contêm o ID da planilha, e-mail e chave privada da sua conta de serviço.
-const SPREADSHEET_ID = process.env.GOOGLE_SHEET_ID; 
-const GOOGLE_CLIENT_EMAIL = process.env.GOOGLE_CLIENT_EMAIL; 
+// A variável de ambiente SPREADSHEET_ID continua sendo necessária
+const SPREADSHEET_ID = process.env.GOOGLE_SHEET_ID;
+
 module.exports = async (req, res) => {
     if (req.method !== 'GET') {
         return res.status(405).send('Método não permitido. Use GET.');
@@ -15,9 +14,10 @@ module.exports = async (req, res) => {
 
     try {
         // Autenticação com a conta de serviço do Google
+        // AGORA USAMOS DIRETAMENTE AS INFORMAÇÕES DO JSON CARREGADO:
         const auth = new google.auth.JWT({
-            email: GOOGLE_CLIENT_EMAIL,
-            key: GOOGLE_PRIVATE_KEY,
+            email: credentials.client_email, // Pega o e-mail do JSON
+            key: credentials.private_key,    // Pega a chave privada do JSON
             scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'], // Apenas leitura da planilha
         });
 
@@ -25,7 +25,7 @@ module.exports = async (req, res) => {
         const sheets = google.sheets({ version: 'v4', auth });
 
         // Define o intervalo de leitura na planilha (colunas A até H)
-        const range = 'A:H'; 
+        const range = 'A:H';
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: SPREADSHEET_ID,
             range: range,
@@ -48,8 +48,8 @@ module.exports = async (req, res) => {
 
         dataRows.forEach(row => {
             // Garante que cada linha tenha o número correto de colunas (preenche com vazio se faltar)
-            const fullRow = Array(headers.length).fill(''); 
-            row.forEach((value, index) => { 
+            const fullRow = Array(headers.length).fill('');
+            row.forEach((value, index) => {
                 fullRow[index] = value;
             });
             csvContent += fullRow.join(';') + '\n';
@@ -66,4 +66,3 @@ module.exports = async (req, res) => {
         res.status(500).json({ message: 'Erro ao carregar o estoque do Google Sheets.', error: errorMessage });
     }
 };
-
