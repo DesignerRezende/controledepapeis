@@ -2,10 +2,10 @@
 const SENHA_PADRAO = "1cafez!n";
 
 // estoqueAtualCompleto agora armazenará todos os dados de cada item, incluindo gramatura e estoque mínimo
-let estoqueAtualCompleto = []; 
+let estoqueAtualCompleto = [];
 
 // Variável para guardar qual operação o usuário clicou (entrada ou baixa)
-let tipoOperacaoAtual = null; 
+let tipoOperacaoAtual = null;
 
 // --- FUNÇÕES AUXILIARES ---
 
@@ -14,14 +14,15 @@ function formatarData(data) {
     const dia = String(d.getDate()).padStart(2, '0');
     const mes = String(d.getMonth() + 1).padStart(2, '0');
     const ano = d.getFullYear();
-    return `<span class="math-inline">\{dia\}/</span>{mes}/${ano}`;
+    return `${dia}/${mes}/${ano}`;
 }
 
 // --- FUNÇÃO PRINCIPAL PARA ENVIAR DADOS PARA NOSSA API DE ATUALIZAÇÃO (Backend) ---
 
 async function enviarParaAPI(linhaCSVCompleta) {
     try {
-        const response = await fetch('/api/atualizar-estoque', {
+        // CORREÇÃO: URL da API para o padrão do Netlify Functions
+        const response = await fetch('/.netlify/functions/api-atualizar-estoque', {
             method: 'POST',
             headers: {
                 'Content-Type': 'text/plain',
@@ -32,7 +33,6 @@ async function enviarParaAPI(linhaCSVCompleta) {
         if (response.ok) {
             const resultado = await response.json();
             console.log('Dados enviados com sucesso:', resultado);
-            // REMOVIDO: alert('Sucesso: ' + resultado.message);
             carregarEstoque(); // Atualiza a tabela após a operação
 
             // Fecha o pop-up e reseta para o estado de login
@@ -68,7 +68,8 @@ async function carregarEstoque() {
     estoqueAtualCompleto = []; // Limpa os dados do estoque para recarregar
 
     try {
-        const response = await fetch('/api/ler-estoque');
+        // CORREÇÃO: URL da API para o padrão do Netlify Functions
+        const response = await fetch('/.netlify/functions/api-ler-estoque');
 
         if (response.ok) {
             const csvContent = await response.text();
@@ -79,14 +80,14 @@ async function carregarEstoque() {
             if (dados.length === 0) {
                 const row = corpoTabela.insertRow();
                 const cell = row.insertCell(0);
-                cell.colSpan = 7; 
+                cell.colSpan = 7;
                 cell.textContent = 'Nenhum item no estoque ainda.';
                 cell.style.textAlign = 'center';
                 return;
             }
 
             dados.forEach(linha => {
-                const colunas = linha.split(';'); 
+                const colunas = linha.split(';');
                 const row = corpoTabela.insertRow();
 
                 // Mapeia as colunas do CSV para as células da tabela HTML
@@ -121,15 +122,12 @@ async function carregarEstoque() {
                 }
             });
 
-            // Popula os dropdowns ao carregar, mas eles só serão usados quando o pop-up de baixa for aberto.
-            // A função popularDropdownsBaixa é chamada quando o pop-up é acionado.
-
         } else {
             const errorText = await response.text();
             console.error('Erro ao carregar estoque da API:', errorText);
             const row = corpoTabela.insertRow();
             const cell = row.insertCell(0);
-            cell.colSpan = 7; 
+            cell.colSpan = 7;
             cell.textContent = 'Erro ao carregar o estoque.';
             cell.style.color = 'red';
         }
@@ -137,7 +135,7 @@ async function carregarEstoque() {
         console.error('Erro de conexão ao carregar estoque:', erro);
         const row = corpoTabela.insertRow();
         const cell = row.insertCell(0);
-        cell.colSpan = 7; 
+        cell.colSpan = 7;
         cell.textContent = 'Problema de conexão ao carregar estoque.';
         cell.style.color = 'red';
     }
@@ -162,7 +160,7 @@ function popularDropdownsBaixa() {
         selectTipoPapel.appendChild(option);
     });
 
-    selectTipoPapel.removeEventListener('change', handleTipoPapelBaixaChange); 
+    selectTipoPapel.removeEventListener('change', handleTipoPapelBaixaChange);
     selectTipoPapel.addEventListener('change', handleTipoPapelBaixaChange);
 }
 
@@ -171,13 +169,13 @@ function handleTipoPapelBaixaChange() {
     const selectGramatura = document.getElementById('inputGramaturaBaixa');
 
     const tipoSelecionado = selectTipoPapel.value;
-    selectGramatura.innerHTML = '<option value="">Selecione a Gramatura</option>'; 
+    selectGramatura.innerHTML = '<option value="">Selecione a Gramatura</option>';
 
     if (tipoSelecionado) {
         const gramaturasUnicas = [...new Set(estoqueAtualCompleto
-            .filter(item => item.tipoPapel === tipoSelecionado && item.gramatura) 
+            .filter(item => item.tipoPapel === tipoSelecionado && item.gramatura)
             .map(item => item.gramatura)
-        )].sort((a, b) => { 
+        )].sort((a, b) => {
             const numA = parseFloat(a);
             const numB = parseFloat(b);
             return numA - numB;
@@ -202,9 +200,9 @@ function calcularTotalFolhasEntrada() {
     const folhasPct = parseFloat(folhasPctInput.value);
 
     if (!isNaN(qtdPacotes) && !isNaN(folhasPct) && qtdPacotes >= 0 && folhasPct >= 0) {
-        totalFolhasInput.value = (qtdPacotes * folhasPct).toFixed(0); 
+        totalFolhasInput.value = (qtdPacotes * folhasPct).toFixed(0);
     } else {
-        totalFolhasInput.value = ''; 
+        totalFolhasInput.value = '';
     }
 }
 
@@ -227,21 +225,21 @@ function registrarEntrada() {
     const folhasPct = parseFloat(inputFolhasPct ? inputFolhasPct.value : '0');
     const totalFolhas = parseFloat(inputTotalFolhas ? inputTotalFolhas.value : '0');
 
-    let estoqueMinimoDoItem = 0; 
-    const itemExistente = estoqueAtualCompleto.find(item => 
+    let estoqueMinimoDoItem = 0;
+    const itemExistente = estoqueAtualCompleto.find(item =>
         item.tipoPapel === tipoPapel && item.gramatura === gramatura &&
         item.marca === marca && item.tamanho === tamanho
     );
     if (itemExistente) {
         estoqueMinimoDoItem = itemExistente.estoqueMinimo;
-    } 
+    }
 
     if (!tipoPapel || !gramatura || !marca || !tamanho || isNaN(quantidade) || quantidade <= 0 || isNaN(folhasPct) || folhasPct <= 0 || isNaN(totalFolhas) || totalFolhas <= 0) {
         alert('Por favor, preencha todos os campos obrigatórios (Tipo de Papel, Gramatura, Marca, Tamanho, Qtd. Pacotes, Folhas/Pct., Total Folhas) para a entrada com valores válidos.');
         return;
     }
 
-    const linhaCSV = `<span class="math-inline">\{tipoPapel\};</span>{gramatura};<span class="math-inline">\{marca\};</span>{tamanho};<span class="math-inline">\{quantidade\};</span>{folhasPct};<span class="math-inline">\{totalFolhas\};</span>{estoqueMinimoDoItem}`;
+    const linhaCSV = `${tipoPapel};${gramatura};${marca};${tamanho};${quantidade};${folhasPct};${totalFolhas};${estoqueMinimoDoItem}`;
 
     enviarParaAPI(linhaCSV);
 
@@ -272,7 +270,7 @@ function registrarBaixa() {
         return;
     }
 
-    const linhaCSV = `<span class="math-inline">\{tipoPapel\};</span>{gramatura};<span class="math-inline">\{uso\};;;</span>{-quantidade};;`; 
+    const linhaCSV = `${tipoPapel};${gramatura};${uso};;;${-quantidade};;`;
 
     enviarParaAPI(linhaCSV);
 
@@ -287,7 +285,8 @@ function registrarBaixa() {
 
 async function baixarCSV() {
     try {
-        const response = await fetch('/api/ler-estoque');
+        // CORREÇÃO: URL da API para o padrão do Netlify Functions
+        const response = await fetch('/.netlify/functions/api-ler-estoque');
         if (response.ok) {
             const csvContent = await response.text();
 
@@ -318,8 +317,6 @@ function handleLogin() {
     const loginForm = document.getElementById('loginForm');
     const entradaSection = document.getElementById('entradaSection');
     const baixaSection = document.getElementById('baixaSection');
-    // const loginMovimentacaoPopup = document.getElementById('loginMovimentacaoPopup'); // Removido, pois já está no escopo global do DOMContentLoaded
-
 
     if (password === SENHA_PADRAO) {
         loginForm.style.display = 'none'; // Esconde o formulário de login
@@ -392,15 +389,15 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('loginMovimentacaoPopup').style.display = 'none';
 
             // Reseta o estado do pop-up para a próxima vez que for aberto
-            document.getElementById('loginForm').style.display = 'block'; 
-            document.getElementById('entradaSection').style.display = 'none'; 
-            document.getElementById('baixaSection').style.display = 'none'; 
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('entradaSection').style.display = 'none';
+            document.getElementById('baixaSection').style.display = 'none';
 
-            document.getElementById('passwordInput').value = ''; 
-            document.getElementById('loginMessage').textContent = ''; 
+            document.getElementById('passwordInput').value = '';
+            document.getElementById('loginMessage').textContent = '';
 
             // Garante que o olhinho volte ao normal
-            if (togglePassword) { 
+            if (togglePassword) {
                 togglePassword.querySelector('i').classList.remove('fa-eye-slash');
                 togglePassword.querySelector('i').classList.add('fa-eye');
             }
@@ -421,7 +418,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (btnAbrirBaixa) {
-        btnAbrirBaixa.addEventListener('click', () => {
+        btnAbracao.addEventListener('click', () => {
             tipoOperacaoAtual = 'baixa'; // Define a operação
             document.getElementById('loginMovimentacaoPopup').style.display = 'flex'; // Abre o pop-up
             document.getElementById('passwordInput').focus(); // Foca na senha
@@ -429,8 +426,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Conecta os botões de CONFIRMAR dentro das seções de entrada/baixa
-    const btnEntradaConfirmar = document.getElementById('btnEntradaConfirmar'); 
-    const btnBaixaConfirmar = document.getElementById('btnBaixaConfirmar'); 
+    const btnEntradaConfirmar = document.getElementById('btnEntradaConfirmar');
+    const btnBaixaConfirmar = document.getElementById('btnBaixaConfirmar');
     const btnDownloadCSV = document.getElementById('btnDownloadCSV');
 
     if (btnEntradaConfirmar) {
