@@ -1,17 +1,19 @@
 {
-  "name": "gerenciador-estoque",
+  "name": "nome-do-projeto",
   "version": "1.0.0",
-  "description": "Gerenciador de estoque com Google Sheets",
-  "main": "index.js",
+  "description": "Uma descrição do seu projeto.",
+  "main": "index.js", // ou o seu arquivo principal da aplicação
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js" // ou o script de inicialização
   },
   "dependencies": {
-    "googleapis": "^140.0.0",
-    "google-auth-library": "^9.10.0"
-  }
+    "googleapis": "^versao.x",
+    // outras dependências
+  },
+  "devDependencies": {
+    // dependências de desenvolvimento
+  },
   "engines": {
-  "node": "18.x" 
-// ou "20.x" ou "16.x" para testar
-}
+    "node": "22.x" // A linha que você adicionou
+  }
 }
