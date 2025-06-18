@@ -14,7 +14,7 @@ function formatarData(data) {
     const dia = String(d.getDate()).padStart(2, '0');
     const mes = String(d.getMonth() + 1).padStart(2, '0');
     const ano = d.getFullYear();
-    return `${dia}/${mes}/${ano}`;
+    return `<span class="math-inline">\{dia\}/</span>{mes}/${ano}`;
 }
 
 // --- FUNÇÃO PRINCIPAL PARA ENVIAR DADOS PARA NOSSA API DE ATUALIZAÇÃO (Backend) ---
@@ -239,7 +239,7 @@ function registrarEntrada() {
         return;
     }
 
-    const linhaCSV = `${tipoPapel};${gramatura};${marca};${tamanho};${quantidade};${folhasPct};${totalFolhas};${estoqueMinimoDoItem}`;
+    const linhaCSV = `<span class="math-inline">\{tipoPapel\};</span>{gramatura};<span class="math-inline">\{marca\};</span>{tamanho};<span class="math-inline">\{quantidade\};</span>{folhasPct};<span class="math-inline">\{totalFolhas\};</span>{estoqueMinimoDoItem}`;
 
     enviarParaAPI(linhaCSV);
 
@@ -270,7 +270,7 @@ function registrarBaixa() {
         return;
     }
 
-    const linhaCSV = `${tipoPapel};${gramatura};${uso};;;${-quantidade};;`;
+    const linhaCSV = `<span class="math-inline">\{tipoPapel\};</span>{gramatura};<span class="math-inline">\{uso\};;;</span>{-quantidade};;`;
 
     enviarParaAPI(linhaCSV);
 
