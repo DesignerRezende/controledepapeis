@@ -6,8 +6,8 @@ const { google } = require("googleapis");
 // Elas contêm o ID da planilha, e-mail e chave privada da sua conta de serviço.
 const SPREADSHEET_ID = process.env.GOOGLE_SHEET_ID; 
 const GOOGLE_CLIENT_EMAIL = process.env.GOOGLE_CLIENT_EMAIL; 
-// A chave privada virá diretamente da variável de ambiente, com as quebras de linha já escapadas corretamente.
-const GOOGLE_PRIVATE_KEY = process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n');
+// A chave privada agora virá em Base64 da variável de ambiente e será decodificada para UTF-8.
+const GOOGLE_PRIVATE_KEY = Buffer.from(process.env.GOOGLE_PRIVATE_KEY, 'base64').toString('utf8');
 
 module.exports = async (req, res) => {
     if (req.method !== 'GET') {
