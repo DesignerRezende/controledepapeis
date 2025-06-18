@@ -21,8 +21,8 @@ function formatarData(data) {
 
 async function enviarParaAPI(linhaCSVCompleta) {
     try {
-        // CORREÇÃO: URL da API para o padrão do Netlify Functions
-        const response = await fetch('/.netlify/functions/api-atualizar-estoque', {
+        // CORREÇÃO FINAL: URL da API para o padrão EXATO do Netlify Functions com a pasta 'api' incorporada
+        const response = await fetch('/.netlify/functions/api-atualizar-estoque', { // Note o "api-" aqui
             method: 'POST',
             headers: {
                 'Content-Type': 'text/plain',
@@ -68,8 +68,8 @@ async function carregarEstoque() {
     estoqueAtualCompleto = []; // Limpa os dados do estoque para recarregar
 
     try {
-        // CORREÇÃO: URL da API para o padrão do Netlify Functions
-        const response = await fetch('/.netlify/functions/api/ler-estoque');
+        // CORREÇÃO FINAL: URL da API para o padrão EXATO do Netlify Functions com a pasta 'api' incorporada
+        const response = await fetch('/.netlify/functions/api-ler-estoque'); // Note o "api-" aqui
 
         if (response.ok) {
             const csvContent = await response.text();
@@ -285,8 +285,8 @@ function registrarBaixa() {
 
 async function baixarCSV() {
     try {
-        // CORREÇÃO: URL da API para o padrão do Netlify Functions
-        const response = await fetch('/.netlify/functions/api-ler-estoque');
+        // CORREÇÃO FINAL: URL da API para o padrão EXATO do Netlify Functions com a pasta 'api' incorporada
+        const response = await fetch('/.netlify/functions/api-ler-estoque'); // Note o "api-" aqui
         if (response.ok) {
             const csvContent = await response.text();
 
