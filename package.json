@@ -9,8 +9,8 @@
   "dependencies": {
     "googleapis": "^140.0.0",
     "google-auth-library": "^9.10.0"
-  }, // <-- ADICIONE A VÍRGULA AQUI!
+  },
   "engines": {
-    "node": "18.x" // ou "20.x" ou "16.x" para testar
+    "node": "22.x"
   }
 }
