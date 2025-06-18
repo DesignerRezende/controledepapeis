@@ -14,15 +14,16 @@ function formatarData(data) {
     const dia = String(d.getDate()).padStart(2, '0');
     const mes = String(d.getMonth() + 1).padStart(2, '0');
     const ano = d.getFullYear();
-    return `<span class="math-inline">\{dia\}/</span>{mes}/${ano}`;
+    return `${dia}/${mes}/${ano}`;
 }
 
 // --- FUNÇÃO PRINCIPAL PARA ENVIAR DADOS PARA NOSSA API DE ATUALIZAÇÃO (Backend) ---
 
 async function enviarParaAPI(linhaCSVCompleta) {
     try {
-        // CORREÇÃO FINAL: URL da API para o padrão EXATO do Netlify Functions com a pasta 'api' incorporada
-        const response = await fetch('/.netlify/functions/api-atualizar-estoque', { // Note o "api-" aqui
+        // CORREÇÃO FINAL E DEFINITIVA: URL da API para o padrão SIMPLIFICADO do Netlify Functions
+        // Sem a pasta 'api' no nome da função.
+        const response = await fetch('/.netlify/functions/atualizar-estoque', { // ESTE É O CAMINHO CORRETO AGORA!
             method: 'POST',
             headers: {
                 'Content-Type': 'text/plain',
@@ -68,8 +69,9 @@ async function carregarEstoque() {
     estoqueAtualCompleto = []; // Limpa os dados do estoque para recarregar
 
     try {
-        // CORREÇÃO FINAL: URL da API para o padrão EXATO do Netlify Functions com a pasta 'api' incorporada
-        const response = await fetch('/.netlify/functions/api-ler-estoque'); // Note o "api-" aqui
+        // CORREÇÃO FINAL E DEFINITIVA: URL da API para o padrão SIMPLIFICADO do Netlify Functions
+        // Sem a pasta 'api' no nome da função.
+        const response = await fetch('/.netlify/functions/ler-estoque'); // ESTE É O CAMINHO CORRETO AGORA!
 
         if (response.ok) {
             const csvContent = await response.text();
@@ -239,7 +241,7 @@ function registrarEntrada() {
         return;
     }
 
-    const linhaCSV = `<span class="math-inline">\{tipoPapel\};</span>{gramatura};<span class="math-inline">\{marca\};</span>{tamanho};<span class="math-inline">\{quantidade\};</span>{folhasPct};<span class="math-inline">\{totalFolhas\};</span>{estoqueMinimoDoItem}`;
+    const linhaCSV = `${tipoPapel};${gramatura};${marca};${tamanho};${quantidade};${folhasPct};${totalFolhas};${estoqueMinimoDoItem}`;
 
     enviarParaAPI(linhaCSV);
 
@@ -270,7 +272,7 @@ function registrarBaixa() {
         return;
     }
 
-    const linhaCSV = `<span class="math-inline">\{tipoPapel\};</span>{gramatura};<span class="math-inline">\{uso\};;;</span>{-quantidade};;`;
+    const linhaCSV = `${tipoPapel};${gramatura};${uso};;;${-quantidade};;`;
 
     enviarParaAPI(linhaCSV);
 
@@ -285,8 +287,9 @@ function registrarBaixa() {
 
 async function baixarCSV() {
     try {
-        // CORREÇÃO FINAL: URL da API para o padrão EXATO do Netlify Functions com a pasta 'api' incorporada
-        const response = await fetch('/.netlify/functions/api-ler-estoque'); // Note o "api-" aqui
+        // CORREÇÃO FINAL E DEFINITIVA: URL da API para o padrão SIMPLIFICADO do Netlify Functions
+        // Sem a pasta 'api' no nome da função.
+        const response = await fetch('/.netlify/functions/ler-estoque'); // ESTE É O CAMINHO CORRETO AGORA!
         if (response.ok) {
             const csvContent = await response.text();
 
@@ -372,7 +375,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 handleLogin();
             }
         });
-    }
+    });
     if (togglePassword) {
         togglePassword.addEventListener('click', () => {
             const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
