@@ -1,24 +1,29 @@
 // api/atualizar-estoque.js
 
 const { google } = require("googleapis");
-const path = require('path'); // Módulo nativo do Node.js para lidar com caminhos de arquivo
-const credentials = require(path.resolve(__dirname, '../gerenciador-estoque-vercel-235b0a581d9d.json')); // Carrega o JSON de credenciais
 
-// A variável de ambiente SPREADSHEET_ID continua sendo necessária
+// Variáveis de ambiente configuradas no Vercel.
+// O SPREADSHEET_ID continua sendo lido diretamente.
 const SPREADSHEET_ID = process.env.GOOGLE_SHEET_ID;
+// O GOOGLE_CLIENT_EMAIL agora é lido da variável de ambiente.
+const GOOGLE_CLIENT_EMAIL = process.env.GOOGLE_CLIENT_EMAIL;
+// A chave privada vem da variável de ambiente codificada em Base64, e é decodificada aqui.
+const GOOGLE_PRIVATE_KEY = Buffer.from(process.env.GOOGLE_PRIVATE_KEY, 'base64').toString('utf8');
 
 module.exports = async (req, res) => {
+    // Garante que apenas requisições POST sejam processadas.
     if (req.method !== 'POST') {
         return res.status(405).send('Método não permitido. Use POST.');
     }
+
     const novaLinhaCSV = req.body; // A linha CSV completa é enviada como string pelo frontend
 
     try {
         // Autenticação com a conta de serviço do Google
-        // AGORA USAMOS DIRETAMENTE AS INFORMAÇÕES DO JSON CARREGADO:
+        // Usamos o email e a chave privada (decodificada) das variáveis de ambiente.
         const auth = new google.auth.JWT({
-            email: credentials.client_email, // Pega o e-mail do JSON
-            key: credentials.private_key,    // Pega a chave privada do JSON
+            email: GOOGLE_CLIENT_EMAIL,
+            key: GOOGLE_PRIVATE_KEY,
             scopes: ['https://www.googleapis.com/auth/spreadsheets'], // Permissão de leitura e escrita
         });
 
