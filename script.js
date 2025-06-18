@@ -69,7 +69,7 @@ async function carregarEstoque() {
 
     try {
         // CORREÇÃO: URL da API para o padrão do Netlify Functions
-        const response = await fetch('/.netlify/functions/api-ler-estoque');
+        const response = await fetch('/.netlify/functions/api/ler-estoque');
 
         if (response.ok) {
             const csvContent = await response.text();
