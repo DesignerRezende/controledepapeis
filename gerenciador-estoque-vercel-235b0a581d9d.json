@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "gerenciador-estoque-vercel",
+  "private_key_id": "235b0a581d9da73e8a39050123716ebd142663a6",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCZwebSFUw5A+pw\npfJ0Lzub5+xF89i7myR6jnLHg2fl39Z1RnEdMh9VVpeX4eAUGGagfSKFtHgONAUV\nBefSh/y/WZ1srTRBldl6zxJed+QqPeHBjbiASNucrJC7V9E/5/8TZAx/5l8cnLzP\n0skA5djLNEG2tl5U9AA+WFcEEc+3A3QmQfXl1gE1KaFPtzG8wmLx3oYK7pVH66ed\nlD9FMLi0lscSz2IXeuvMYKNxt/fAcM+BUnqAffgA4yKgmBcc9FenIrGXqtw8vMAe\nf3QnxYLtz35uNGYGQrbk1hXNkvy2aMeiKJ1lYweXdCPY+UP9Xuq1CEsJYnsIpEkr\nPpKkS/jDAgMBAAECggEAFaaXJmf3VrlKxC1UlFr+TXgn7hBl1BexgvcXXylix5zF\nqbfklP7fffh2hN2P3GSJ4aQdPgST5IlwrxgoykgkepwCLdu/Kv5lzwQ6NZveQLsm\nqfGXKavuDgQX++QOxAKatBP3f/RkL4w742vEAAtdg/z0xTyteyWXTzAd+KW6wQNU\nfE9lkfz3ljX5CdkUAedsXaSGdMzx2iXBR26/y/DYw+QHr0CZeEUitHxZkDjtI8yV\ngFo4ntejoKJGDV3lvOwtlhBFkcqXrlegt5Mv/vKPvBg3RvHb410TALui3uAMb4Zg\nuoJXMVBExJiYI6B99ISEAPI3F/RDrL5rgUnTPTa7QQKBgQDUPUs1Wenc13O3gtHu\nNWxQyODrH595D1zKYR4apjMR/L0I47bpGxvIg5H7c/i2f6s/HZtLFeb3SW0Wf7k0\nYXRC3PTBwfRIIvhRzRc4Dihr15zVGmk/8OHJl8TTavBG051/zTC42e/caNz+fp/r\nnyfQXRpXZ1kkyeDN2m10nEqYowKBgQC5dbuCus7GyFueqkf/LRo3tbszVfXxYwV7\nDCxpSaujuF/CsqcDBIdyGMvAV0MIDNby9ouYnc0X4bs7ZjIpA4RzOxHA1yRYLGQm\nlZPtz+tDTjxCNfpSXrK+EsQ+Z3lU0JB7W9KurDegL8OTRhSwfZYLcXQ+O2xRDFZ0\nOz500kqBYQKBgCPMStku10FGneAAEsSpAiIGH9nIta9HphEEnH1GNyr7hC7xqbJb\nvi3t8zuEbhjqI8o7hiv9/70KB3paBLUPEvsMJcRgoIFiVJwHibkMukimT2+qSsJc\nMNk93hcC3JA1tUUPKP6k085LaasLVJH7gE2mxoCjj+einWZbR0b57aMdAoGBAKvU\nGNcWnV4vZDOtMOeLsi7LgZYenq/3PqyyqrMiPpSBzrdlLrftClD8CEs8ji53NvAE\n3XGZQtxNmFuAZBj72Uup/tjcfB/1gRT+oQBFE4RYiBwQRszqUFEqsgffdtrOIg8p\nFBoiFaekmV9qHuEmek4/36OJCuJMvA0UltlFvSIBAoGAVbpQSmDVfECO3NbUZHGy\ntIa0jLVC7OtoHbY2ptWFKKFBfDmz6Z+fphR96Y901azz6J346cCQwTJ1w/sYLqTm\nkhcYjmlyhZZwFawfVeYhvhO6nFjSUvpMwvL8ieP5PT7SXBMcADJw/LumWhcWF7l9\nMLsGaR8giWV9ItwlRWcoUM0=\n-----END PRIVATE KEY-----\n",
+  "client_email": "acesso-sheets@gerenciador-estoque-vercel.iam.gserviceaccount.com",
+  "client_id": "114020467247929680338",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/acesso-sheets%40gerenciador-estoque-vercel.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
