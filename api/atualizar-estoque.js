@@ -1,6 +1,9 @@
 // api/atualizar-estoque.js
 
 const { google } = require("googleapis");
+const path = require('path'); // Módulo nativo do Node.js para lidar com caminhos de arquivo
+const credentials = require(path.resolve(__dirname, '../gerenciador-estoque-vercel-235b0a581d9d.json'));
+// Se o seu JSON estiver em outra pasta, ajuste o caminho. Ex: '../credentials/gerenciador-estoque-vercel-235b0a581d9d.json'
 
 // As variáveis de ambiente (process.env.NOME) serão configuradas na Vercel.
 const SPREADSHEET_ID = process.env.GOOGLE_SHEET_ID; 
