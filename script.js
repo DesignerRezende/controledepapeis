@@ -375,7 +375,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 handleLogin();
             }
         });
-    });
+    };
     if (togglePassword) {
         togglePassword.addEventListener('click', () => {
             const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
