@@ -14,7 +14,7 @@ function formatarData(data) {
     const dia = String(d.getDate()).padStart(2, '0');
     const mes = String(d.getMonth() + 1).padStart(2, '0');
     const ano = d.getFullYear();
-    return `<span class="math-inline">\{dia\}/</span>{mes}/${ano}`;
+    return `${dia}/${mes}/${ano}`;
 }
 
 // --- FUNÇÃO PRINCIPAL PARA ENVIAR DADOS PARA NOSSA API DE ATUALIZAÇÃO (Backend) ---
@@ -239,4 +239,221 @@ function registrarEntrada() {
         return;
     }
 
-    const linhaCSV = `<span class="math-inline">\{tipoPapel\};</span>{gramatura};${marca};
+    const linhaCSV = `${tipoPapel};${gramatura};${marca};${tamanho};${quantidade};${folhasPct};${totalFolhas};${estoqueMinimoDoItem}`;
+
+    enviarParaAPI(linhaCSV);
+
+    // Limpa os campos após o envio
+    if (inputTipoPapel) inputTipoPapel.value = '';
+    if (inputGramatura) inputGramatura.value = '';
+    if (inputMarca) inputMarca.value = '';
+    if (inputTamanho) inputTamanho.value = '';
+    inputQuantidade.value = '';
+    if (inputFolhasPct) inputFolhasPct.value = '';
+    if (inputTotalFolhas) inputTotalFolhas.value = '';
+}
+
+
+function registrarBaixa() {
+    const selectTipoPapel = document.getElementById('inputTipoPapelBaixa');
+    const selectGramatura = document.getElementById('inputGramaturaBaixa');
+    const inputQuantidade = document.getElementById('quantidadeBaixa');
+    const inputUsoBaixa = document.getElementById('inputUsoBaixa');
+
+    const tipoPapel = selectTipoPapel ? selectTipoPapel.value.trim() : '';
+    const gramatura = selectGramatura ? selectGramatura.value.trim() : '';
+    const quantidade = parseFloat(inputQuantidade.value);
+    const uso = inputUsoBaixa ? inputUsoBaixa.value.trim() : '';
+
+    if (!tipoPapel || !gramatura || isNaN(quantidade) || quantidade <= 0) {
+        alert('Por favor, selecione o Tipo de Papel e a Gramatura e digite uma Quantidade válida de pacotes para a baixa.');
+        return;
+    }
+
+    const linhaCSV = `${tipoPapel};${gramatura};${uso};;;${-quantidade};;`;
+
+    enviarParaAPI(linhaCSV);
+
+    if (selectTipoPapel) selectTipoPapel.value = '';
+    if (selectGramatura) selectGramatura.value = '';
+    inputQuantidade.value = '';
+    if (inputUsoBaixa) inputUsoBaixa.value = '';
+}
+
+
+// --- FUNÇÃO: BAIXAR CSV ---
+
+async function baixarCSV() {
+    try {
+        // CORREÇÃO: URL da API para o padrão do Netlify Functions
+        const response = await fetch('/.netlify/functions/api-ler-estoque');
+        if (response.ok) {
+            const csvContent = await response.text();
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Controle_de_Papeis_Atualizado.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        } else {
+            alert('Erro ao baixar o CSV.');
+            console.error('Erro ao baixar CSV:', await response.text());
+        }
+    } catch (error) {
+        alert('Ocorreu um erro ao tentar baixar o CSV.');
+        console.error('Erro de conexão ao baixar CSV:', error);
+    }
+}
+
+// --- LÓGICA DE LOGIN E CONTROLE DE EXIBIÇÃO ---
+
+function handleLogin() {
+    const password = document.getElementById('passwordInput').value;
+    const loginMessage = document.getElementById('loginMessage');
+    const loginForm = document.getElementById('loginForm');
+    const entradaSection = document.getElementById('entradaSection');
+    const baixaSection = document.getElementById('baixaSection');
+
+    if (password === SENHA_PADRAO) {
+        loginForm.style.display = 'none'; // Esconde o formulário de login
+        loginMessage.textContent = ''; // Limpa qualquer mensagem de erro
+
+        // Mostra a seção de movimentação correta com base na operação clicada
+        if (tipoOperacaoAtual === 'entrada') {
+            entradaSection.style.display = 'block';
+            baixaSection.style.display = 'none';
+        } else if (tipoOperacaoAtual === 'baixa') {
+            baixaSection.style.display = 'block';
+            entradaSection.style.display = 'none';
+            popularDropdownsBaixa(); // Popula dropdowns para baixa
+        }
+        // Não há alert de sucesso de login
+
+        // Limpa o campo de senha após sucesso
+        document.getElementById('passwordInput').value = '';
+
+    } else {
+        loginMessage.textContent = 'Senha incorreta.';
+    }
+}
+
+
+// --- CONEXÃO DOS BOTÕES E CARREGAMENTO INICIAL ---
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Carrega a tabela assim que a página é carregada
+    carregarEstoque();
+
+    // Esconder o pop-up de login/movimentação no início
+    document.getElementById('loginMovimentacaoPopup').style.display = 'none';
+
+    // Esconder as seções de entrada e baixa (elas aparecerão após o login)
+    document.getElementById('entradaSection').style.display = 'none';
+    document.getElementById('baixaSection').style.display = 'none';
+    // Garantir que o formulário de login esteja visível quando o pop-up for aberto
+    document.getElementById('loginForm').style.display = 'block';
+
+
+    // Conecta o botão de login dentro do pop-up
+    const loginButton = document.getElementById('loginButton');
+    const passwordInput = document.getElementById('passwordInput');
+    const togglePassword = document.getElementById('togglePassword');
+
+    if (loginButton) {
+        loginButton.addEventListener('click', handleLogin);
+    }
+    if (passwordInput) {
+        passwordInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                handleLogin();
+            }
+        });
+    }
+    if (togglePassword) {
+        togglePassword.addEventListener('click', () => {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            togglePassword.querySelector('i').classList.toggle('fa-eye');
+            togglePassword.querySelector('i').classList.toggle('fa-eye-slash');
+        });
+    }
+
+    // Conecta o botão de fechar o pop-up
+    const closePopupButton = document.getElementById('closePopup');
+    if (closePopupButton) {
+        closePopupButton.addEventListener('click', () => {
+            document.getElementById('loginMovimentacaoPopup').style.display = 'none';
+
+            // Reseta o estado do pop-up para a próxima vez que for aberto
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('entradaSection').style.display = 'none';
+            document.getElementById('baixaSection').style.display = 'none';
+
+            document.getElementById('passwordInput').value = '';
+            document.getElementById('loginMessage').textContent = '';
+
+            // Garante que o olhinho volte ao normal
+            if (togglePassword) {
+                togglePassword.querySelector('i').classList.remove('fa-eye-slash');
+                togglePassword.querySelector('i').classList.add('fa-eye');
+            }
+            passwordInput.setAttribute('type', 'password'); // Esconde a senha novamente
+        });
+    }
+
+    // Conecta os botões que ABREM o pop-up de login/movimentação
+    const btnAbrirEntrada = document.getElementById('btnAbrirEntrada');
+    const btnAbrirBaixa = document.getElementById('btnAbrirBaixa');
+
+    if (btnAbrirEntrada) {
+        btnAbrirEntrada.addEventListener('click', () => {
+            tipoOperacaoAtual = 'entrada'; // Define a operação
+            document.getElementById('loginMovimentacaoPopup').style.display = 'flex'; // Abre o pop-up
+            document.getElementById('passwordInput').focus(); // Foca na senha
+        });
+    }
+
+    if (btnAbrirBaixa) {
+        btnAbrirBaixa.addEventListener('click', () => {
+            tipoOperacaoAtual = 'baixa'; // Define a operação
+            document.getElementById('loginMovimentacaoPopup').style.display = 'flex'; // Abre o pop-up
+            document.getElementById('passwordInput').focus(); // Foca na senha
+        });
+    }
+
+    // Conecta os botões de CONFIRMAR dentro das seções de entrada/baixa
+    const btnEntradaConfirmar = document.getElementById('btnEntradaConfirmar');
+    const btnBaixaConfirmar = document.getElementById('btnBaixaConfirmar');
+    const btnDownloadCSV = document.getElementById('btnDownloadCSV');
+
+    if (btnEntradaConfirmar) {
+        btnEntradaConfirmar.addEventListener('click', registrarEntrada);
+    } else {
+        console.error("Botão 'btnEntradaConfirmar' não encontrado!");
+    }
+    if (btnBaixaConfirmar) {
+        btnBaixaConfirmar.addEventListener('click', registrarBaixa);
+    } else {
+        console.error("Botão 'btnBaixaConfirmar' não encontrado!");
+    }
+    if (btnDownloadCSV) {
+        btnDownloadCSV.addEventListener('click', baixarCSV);
+    } else {
+        console.error("Botão 'btnDownloadCSV' não encontrado!");
+    }
+
+    // Event Listeners para cálculo de Total Folhas na Entrada
+    const qtdPacotesEntrada = document.getElementById('quantidadeEntrada');
+    const folhasPctEntrada = document.getElementById('inputFolhasPctEntrada');
+
+    if (qtdPacotesEntrada) {
+        qtdPacotesEntrada.addEventListener('input', calcularTotalFolhasEntrada);
+    }
+    if (folhasPctEntrada) {
+        folhasPctEntrada.addEventListener('input', calcularTotalFolhasEntrada);
+    }
+});
