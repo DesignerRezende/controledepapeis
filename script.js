@@ -54,7 +54,6 @@ async function enviarParaAPI(linhaCSVCompleta) {
     }
 }
 
-
 // --- FUNÇÃO: CARREGAR ESTOQUE DA API E EXIBIR NA TABELA ---
 
 async function carregarEstoque() {
