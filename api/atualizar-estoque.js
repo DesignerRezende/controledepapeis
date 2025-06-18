@@ -2,12 +2,10 @@
 
 const { google } = require("googleapis");
 const path = require('path'); // Módulo nativo do Node.js para lidar com caminhos de arquivo
-const credentials = require(path.resolve(__dirname, '../gerenciador-estoque-vercel-235b0a581d9d.json'));
-// Se o seu JSON estiver em outra pasta, ajuste o caminho. Ex: '../credentials/gerenciador-estoque-vercel-235b0a581d9d.json'
+const credentials = require(path.resolve(__dirname, '../gerenciador-estoque-vercel-235b0a581d9d.json')); // Carrega o JSON de credenciais
 
-// As variáveis de ambiente (process.env.NOME) serão configuradas na Vercel.
-const SPREADSHEET_ID = process.env.GOOGLE_SHEET_ID; 
-const GOOGLE_CLIENT_EMAIL = process.env.GOOGLE_CLIENT_EMAIL; 
+// A variável de ambiente SPREADSHEET_ID continua sendo necessária
+const SPREADSHEET_ID = process.env.GOOGLE_SHEET_ID;
 
 module.exports = async (req, res) => {
     if (req.method !== 'POST') {
@@ -18,9 +16,10 @@ module.exports = async (req, res) => {
 
     try {
         // Autenticação com a conta de serviço do Google
+        // AGORA USAMOS DIRETAMENTE AS INFORMAÇÕES DO JSON CARREGADO:
         const auth = new google.auth.JWT({
-            email: GOOGLE_CLIENT_EMAIL,
-            key: GOOGLE_PRIVATE_KEY,
+            email: credentials.client_email, // Pega o e-mail do JSON
+            key: credentials.private_key,    // Pega a chave privada do JSON
             scopes: ['https://www.googleapis.com/auth/spreadsheets'], // Permissão de leitura e escrita
         });
 
@@ -28,7 +27,7 @@ module.exports = async (req, res) => {
         const sheets = google.sheets({ version: 'v4', auth });
 
         // 1. Verificar se a planilha está vazia (primeira célula A1) para adicionar o cabeçalho
-        const checkRange = 'A1:A1'; 
+        const checkRange = 'A1:A1';
         const existingData = await sheets.spreadsheets.values.get({
             spreadsheetId: SPREADSHEET_ID,
             range: checkRange,
@@ -44,7 +43,7 @@ module.exports = async (req, res) => {
         }
 
         // Adiciona a nova linha de dados (dividida por ';') à lista de valores para anexar
-        valuesToAppend.push(novaLinhaCSV.split(';')); 
+        valuesToAppend.push(novaLinhaCSV.split(';'));
 
         // Adiciona os dados à planilha
         await sheets.spreadsheets.values.append({
@@ -65,4 +64,3 @@ module.exports = async (req, res) => {
         res.status(500).json({ message: 'Erro ao atualizar o estoque no Google Sheets.', error: errorMessage });
     }
 };
-
