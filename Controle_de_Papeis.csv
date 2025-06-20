@@ -1,10 +1,10 @@
 Tipo de Papel;Gramatura;Marca;Tamanho;Quantidade de Pacotes;Folhas por Pacote;Total de Folhas;Estoque Mínimo
 Papel Fotográfico Matte;230g/m²;Masterprint;A4;3;100;295;40
 Papel Fotográfico Matte Dupla Face;220g/m²;Masterprint;A4;2;100;200;40
-Papel Fotográfico Matte;170g/m²;Masterprint;A4;3;100;295;40
+Papel Fotográfico Matte;170g/m²;Masterprint;A4;10;100;995;40
 Papel Fotográfico Matte;108g/m²;Masterprint;A4;5;100;495;40
 Papel Fotográfico Glossy;180g/m²;Masterprint;A4;2;50;95;20
-Papel Fotográfico Glossy Autoadesivo;180g/m²;Masterprint;A4;2;50;95;20
+Papel Fotográfico Glossy Autoadesivo;180g/m²;Masterprint;A4;2;50;75;20
 Filme Adesivo Vinil Transparente;150g/m²;Masterprint;A4;2;10;15;4
 Papel Fotográfico Matte Autoadesivo;108g/m²;Masterprint;A4;4;20;75;4
 Papel Cartão;180g/m²;Jandaia;A4;1;50;45;20
@@ -22,4 +22,6 @@ Filme Adesivo Vinil Branco;135g/m²;Masterprint;A4;1;10;5;4
 Papel Fotográfico Glossy Textura Pérola;200g/m²;Masterprint;A4;2;20;40;8
 Papel Fotográfico Glossy Textura Couro;200g/m²;Masterprint;A4;2;20;40;8
 Papel Fotográfico Glossy Dupla Face;180g/m²;Masterprint;A4;2;20;35;8
-Filme Adesivo Transparente;150g/m²;Masterprint;A4;1;10;2;4
+Filme Adesivo Transparente;150g/m²;Masterprint;A4;1;10;7;4
+Papel Fotográfico Glossy;180g/m²;Masterprint;A3;3;50;150;20
+Papel Fotográfico Glossy;180g/m²;Off Paper;A3;2;20;40;8
